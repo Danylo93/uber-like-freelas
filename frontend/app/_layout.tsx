@@ -9,6 +9,7 @@ import { ServicesProvider } from '../src/contexts/ServicesContext';
 import { ChatProvider } from '../src/contexts/ChatContext';
 import { WebSocketProvider } from '../src/contexts/WebSocketContext';
 import { MatchingProvider } from '../src/contexts/MatchingContext';
+import { FirebaseProvider } from '../src/contexts/FirebaseContext';
 
 const queryClient = new QueryClient();
 
