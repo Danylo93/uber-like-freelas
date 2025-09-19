@@ -298,8 +298,10 @@ export default function SimpleServiceList() {
               >
                 <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, { flex: 1 }]} onPress={handleNewService}>
-                <Text style={styles.buttonText}>Publicar</Text>
+              <TouchableOpacity style={[styles.button, { flex: 1 }]} onPress={handleNewService} disabled={loading}>
+                <Text style={styles.buttonText}>
+                  {loading ? '⏳ Criando...' : 'Publicar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
