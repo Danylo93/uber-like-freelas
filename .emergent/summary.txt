@@ -1,0 +1,60 @@
+<analysis>
+The previous AI engineer successfully initiated and advanced the development of a React Native Expo application, adhering to detailed UX/UI specifications for a service marketplace. The initial focus was on establishing a Material 3 design system, core navigation, and a FastAPI backend with authentication. Key challenges involved resolving  and  compatibility issues, alongside a critical fix for frontend-to-backend communication. The work progressed to integrate Stripe payments, Firebase for real-time chat, and AI features using Emergent LLM. The most recent directive from the user was to refactor the UI/UX to an Uber-like experience, which is currently underway. The project is in an advanced state of feature implementation and UI/UX refinement, with some temporary map functionality workarounds.
+</analysis>
+
+<product_requirements>
+The application is a single React Native app for iOS/Android, dynamically adapting its experience based on user roles ( or ) post-login. It must prioritize performance (60fps), accessibility (AA), dark mode, responsive design, and a cohesive Google-like Material 3 design. Core UX principles include clarity, immediate feedback, visible state, predictability, and perceived speed. The primary interface is a map with a contextual . A Material 3 design system, including custom tokens, typography, and reusable components like , various buttons, , , , , , , , and , is required.
+
+Navigation utilizes a  comprising a full-screen map, , , and a  fixed to the footer (Home, Serviços, Atividade, Conta). Features dynamically load based on the user's role. Common flows include Onboarding, Login/SignUp (Email/Password, Google/Apple), Profile, Settings, Notifications, Chat, and History. Client flows encompass service request creation, finding/accepting provider offers, tracking, payment (Stripe), and rating. Provider flows involve online/offline toggling, receiving/accepting/refusing requests, status updates (A caminho / Cheguei / Em serviço), and service finalization. The app requires empty/loading/error states, Google Maps integration, Firebase Realtime Database for chat, and AI features utilizing Emergent LLM. The latest user request is to update Expo to the latest version, remove all existing mocks, and transform the app's overall styling and UX/UI to be more akin to Uber.
+</product_requirements>
+
+<key_technical_concepts>
+-   **React Native & Expo Router**: Cross-platform mobile development with file-based routing.
+-   **Material 3 Design System**: Modern, customizable UI/UX guidelines.
+-   **Zustand & React Query**: Frontend state and server state management.
+-   **FastAPI & MongoDB**: Backend API and NoSQL database.
+-   **Stripe**: Payment gateway integration.
+-   **Firebase Realtime Database**: Real-time communication for chat.
+-   **Emergent LLM Key**: Integration for AI features.
+-   ****: Map and location services.
+-   **Role-based UI**: Dynamic content based on user roles (client/provider).
+</key_technical_concepts>
+
+<code_architecture>
+The application has a monorepo structure with  (FastAPI) and  (React Native Expo) directories.
+
+
+
+-   : This directory houses the Material 3 design tokens, colors, typography scales, and theme configurations (, , , , ). These files are crucial for maintaining a consistent visual identity as per the Google-like design requirement.
+-   : Contains a library of reusable UI components like , , , , etc. These abstract common UI patterns, promoting reusability and consistency.
+-   : Newly created components like , , , . These are specifically designed to implement the requested Uber-like UI/UX.
+-   : This is the Expo Router directory for screen definitions.  files define navigation stacks and tab layouts.  handles authentication-related screens (Login, Register).  defines the main authenticated tabs (Home/Map, Services, Activity, Account).
+-   : Manages global state with  (authentication),  (real-time chat), and  (newly added for Uber-like service matching logic).
+-   : Centralizes API calls to the FastAPI backend, simplifying data fetching and management.
+-   : The main FastAPI application, integrating routes from other backend modules for authentication, payments, and AI services.
+-    and : Modules defining specific API routes and logic for Stripe payments and AI interactions, respectively.
+-   : Configuration for Babel, essential for transpiling modern JavaScript/TypeScript and handling React Native specific plugins, like those for animations.
+-   : Stores environment variables, including the  crucial for connecting the frontend to the backend services.
+</code_architecture>
+
+<pending_tasks>
+-   Complete the implementation of Firebase push notifications.
+-   Develop the comprehensive rating system for services.
+-   Address  compatibility issues for web, finding a robust cross-platform mapping solution.
+-   Fully remove all remaining mocked data (especially in ) and connect relevant components to real backend data.
+-   Refine the Uber-like UI/UX across all screens as requested.
+</pending_tasks>
+
+<current_work>
+The AI engineer is currently in the process of refactoring the application's UI/UX to match an Uber-like experience, a direct request from the user. This involves creating new dedicated UI components under , specifically , , , and , which are intended to replicate the visual and interaction patterns of Uber's application.
+
+A new global state management context, , along with its associated hook , has been introduced. This context is designed to manage the complex logic and states related to service matching between clients and providers within the new Uber-like paradigm.
+
+The core navigation structure has been updated in  to integrate the . Crucially, the main  () has been replaced by the newly developed  (located in ), signifying a fundamental shift in the application's primary user interface.
+
+In parallel, work has begun on refactoring  to eliminate mocked data and connect it to real-time backend data for chat functionality. The engineer is also planning to implement push notifications and a rating system. A temporary placeholder for maps is currently in place due to ongoing  incompatibility issues with web preview, but the focus is on developing the Uber-like UI around this.
+</current_work>
+
+<optional_next_step>
+Install necessary dependencies for push notifications and implement the rating system.
+</optional_next_step>
