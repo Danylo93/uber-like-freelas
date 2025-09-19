@@ -26,6 +26,41 @@ class ApiService {
     return response.json();
   }
 
+  // Generic HTTP methods
+  async get(endpoint: string) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers: await this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async post(endpoint: string, data?: any) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return this.handleResponse(response);
+  }
+
+  async put(endpoint: string, data?: any) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'PUT',
+      headers: await this.getAuthHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return this.handleResponse(response);
+  }
+
+  async delete(endpoint: string) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'DELETE',
+      headers: await this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
   // Authentication
   async register(data: {
     email: string;
