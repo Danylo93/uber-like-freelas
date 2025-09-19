@@ -129,6 +129,34 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // Payments
+  async createPaymentSession(data: {
+    package_id: string;
+    origin_url: string;
+    metadata?: Record<string, string>;
+  }) {
+    const response = await fetch(`${this.baseUrl}/payments/checkout/session`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getPaymentStatus(sessionId: string) {
+    const response = await fetch(`${this.baseUrl}/payments/checkout/status/${sessionId}`, {
+      headers: await this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getPaymentPackages() {
+    const response = await fetch(`${this.baseUrl}/payments/packages`, {
+      headers: await this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export const apiService = new ApiService();
