@@ -80,10 +80,10 @@ class FirebaseRealtimeService {
         return;
       }
 
-      // Initialize Firebase components
-      this.app = app;
-      this.database = database;
-      this.auth = auth;
+      // Initialize Firebase components only when needed
+      this.app = initializeApp(firebaseConfig);
+      this.database = getDatabase(this.app);
+      this.auth = getAuth(this.app);
       
       // Sign in anonymously to Firebase
       await signInAnonymously(this.auth);
@@ -97,9 +97,13 @@ class FirebaseRealtimeService {
 
   // Service Requests Management
   async createServiceRequest(serviceRequest: Omit<RealTimeServiceRequest, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    if (!isFirebaseConfigured) {
+      throw new Error('Firebase not configured');
+    }
+    
     if (!this.initialized) await this.initialize();
     
-    const serviceRef = ref(database, 'serviceRequests');
+    const serviceRef = ref(this.database, 'serviceRequests');
     const newServiceRef = push(serviceRef);
     
     const serviceData: RealTimeServiceRequest = {
@@ -115,9 +119,11 @@ class FirebaseRealtimeService {
   }
 
   async updateServiceRequest(serviceId: string, updates: Partial<RealTimeServiceRequest>) {
-    if (!this.initialized) await this.initialize();
+    if (!isFirebaseConfigured || !this.initialized) {
+      throw new Error('Firebase not configured or initialized');
+    }
     
-    const serviceRef = ref(database, `serviceRequests/${serviceId}`);
+    const serviceRef = ref(this.database, `serviceRequests/${serviceId}`);
     await update(serviceRef, {
       ...updates,
       updatedAt: Date.now()
