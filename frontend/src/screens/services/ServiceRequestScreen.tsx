@@ -262,6 +262,7 @@ export default function ServiceRequestScreen() {
           <Button
             title="Criar Solicitação"
             onPress={handleSubmit}
+            loading={isSubmitting}
             fullWidth
           />
         </Card>
