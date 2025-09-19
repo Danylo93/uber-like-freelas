@@ -34,6 +34,8 @@ set_payment_service(payment_service)
 ai_service = AIService(database)
 set_ai_service(ai_service)
 
+notification_service = NotificationService(database)
+
 # Create the main app without a prefix
 app = FastAPI(title="Service Marketplace API", version="1.0.0")
 
