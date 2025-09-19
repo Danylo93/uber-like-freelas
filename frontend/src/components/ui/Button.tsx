@@ -37,10 +37,10 @@ export const Button: React.FC<ButtonProps> = ({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: theme.borderRadius.medium,
+      borderRadius: theme?.borderRadius?.medium || theme?.borderRadius?.md || 12,
       minHeight: size === 'small' ? 32 : size === 'medium' ? 40 : 48,
-      paddingHorizontal: theme.spacing.md,
-      opacity: disabled ? theme.colors.states.disabled : 1,
+      paddingHorizontal: theme?.spacing?.md || 16,
+      opacity: disabled ? theme?.colors?.states?.disabled || 0.5 : 1,
       ...(fullWidth && { width: '100%' }),
     };
 
@@ -48,32 +48,44 @@ export const Button: React.FC<ButtonProps> = ({
       case 'primary':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.primary,
-          ...theme.elevation.level1,
+          backgroundColor: theme?.colors?.primary || '#6750A4',
+          ...(theme?.elevation?.level1 || {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2,
+          }),
         };
       case 'secondary':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.secondary,
-          ...theme.elevation.level1,
+          backgroundColor: theme?.colors?.secondary || '#625B71',
+          ...(theme?.elevation?.level1 || {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2,
+          }),
         };
       case 'tonal':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.primaryContainer,
+          backgroundColor: theme?.colors?.primaryContainer || theme?.colors?.surfaceVariant || '#F3F3F3',
         };
       case 'outlined':
         return {
           ...baseStyle,
           backgroundColor: 'transparent',
           borderWidth: 1,
-          borderColor: theme.colors.outline,
+          borderColor: theme?.colors?.outline || '#79747E',
         };
       case 'text':
         return {
           ...baseStyle,
           backgroundColor: 'transparent',
-          paddingHorizontal: theme.spacing.sm,
+          paddingHorizontal: theme?.spacing?.sm || 8,
         };
       default:
         return baseStyle;
