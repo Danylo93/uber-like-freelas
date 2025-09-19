@@ -237,6 +237,10 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
       backgroundColor: colors.secondary + '10',
       borderColor: colors.secondary,
     },
+    navigationButton: {
+      backgroundColor: colors.secondary + '10',
+      borderColor: colors.secondary,
+    },
     cancelButton: {
       backgroundColor: colors.error + '10',
       borderColor: colors.error,
