@@ -310,8 +310,12 @@ async def get_provider_earnings(
     current_user: User = Depends(get_current_user)
 ):
     """Get provider earnings summary"""
+    # Check if user is currently a provider or has provider capabilities
     if current_user.role != "provider":
-        raise HTTPException(status_code=403, detail="Only providers can view earnings")
+        # Check if user has switched roles recently or has provider data
+        user_data = await database.users.find_one({"id": current_user.id})
+        if not user_data or user_data.get("role") != "provider":
+            raise HTTPException(status_code=403, detail="Only providers can view earnings")
     
     # Get completed services
     completed_services = await database.service_requests.find({
