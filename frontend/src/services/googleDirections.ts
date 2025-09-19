@@ -73,9 +73,9 @@ class GoogleDirectionsService {
   private baseUrl = 'https://maps.googleapis.com/maps/api/directions/json';
 
   constructor() {
-    // For now, we'll implement a mock service
-    // In production, you would set the API key here
-    console.log('🗺️ GoogleDirectionsService initialized');
+    // Initialize with API key from environment variables
+    this.apiKey = process.env.EXPO_PUBLIC_GOOGLE_DIRECTIONS_API_KEY || null;
+    console.log('🗺️ GoogleDirectionsService initialized', this.apiKey ? 'with real API key' : 'with mock data');
   }
 
   setApiKey(apiKey: string) {
