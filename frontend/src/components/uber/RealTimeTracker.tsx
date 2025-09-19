@@ -22,6 +22,7 @@ interface RealTimeTrackerProps {
   onCallProvider?: () => void;
   onChatProvider?: () => void;
   onCancelService?: () => void;
+  onStartNavigation?: () => void;
   style?: any;
 }
 
