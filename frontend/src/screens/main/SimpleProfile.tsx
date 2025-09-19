@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
+import { serviceActionsAPI } from '../../services/serviceActions';
 
 export default function SimpleProfile() {
   const themeContext = useTheme();
