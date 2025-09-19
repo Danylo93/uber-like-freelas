@@ -28,13 +28,42 @@ export default function SimpleProfile() {
     );
   };
 
-  const handleRoleSwitch = () => {
+  const handleRoleSwitch = async () => {
     Alert.alert(
       'Trocar Perfil',
       `Deseja trocar para ${user?.role === 'client' ? 'Prestador' : 'Cliente'}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Confirmar', onPress: () => Alert.alert('Info', 'Funcionalidade em desenvolvimento') }
+        { 
+          text: 'Confirmar', 
+          onPress: async () => {
+            try {
+              setLoading(true);
+              const response = await serviceActionsAPI.switchUserRole();
+              
+              Alert.alert(
+                'Sucesso!',
+                response.message,
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      // Refresh user data to get updated role
+                      if (refreshUser) {
+                        refreshUser();
+                      }
+                    }
+                  }
+                ]
+              );
+            } catch (error) {
+              console.error('Error switching role:', error);
+              Alert.alert('Erro', 'Não foi possível trocar o perfil. Tente novamente.');
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
       ]
     );
   };
