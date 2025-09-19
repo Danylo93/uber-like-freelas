@@ -314,58 +314,15 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {/* Progress Bar */}
-      <View style={styles.progressBar}>
-        <Animated.View
-          style={[
-            styles.progress,
-            {
-              width: progressAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0%', '100%'],
-              }),
-            },
-          ]}
-        />
-      </View>
+      {/* Service Status Transition */}
+      <ServiceStatusTransition
+        currentStatus={serviceRequest.status}
+        animated={true}
+        showProgress={true}
+        style={{ marginBottom: 16 }}
+      />
 
       <View style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Animated.View
-            style={[
-              styles.statusIcon,
-              {
-                backgroundColor: statusInfo.color + '20',
-                transform: [{ scale: pulseAnimation }],
-              },
-            ]}
-          >
-            <Ionicons
-              name={statusInfo.icon as any}
-              size={24}
-              color={statusInfo.color}
-            />
-          </Animated.View>
-
-          <View style={styles.statusTextContainer}>
-            <Text style={styles.statusTitle}>{statusInfo.title}</Text>
-            <Text style={styles.statusSubtitle}>{statusInfo.subtitle}</Text>
-          </View>
-
-          <View style={styles.liveIndicator}>
-            <Animated.View
-              style={[
-                styles.liveDot,
-                {
-                  transform: [{ scale: pulseAnimation }],
-                },
-              ]}
-            />
-            <Text style={styles.liveText}>AO VIVO</Text>
-          </View>
-        </View>
-
         {/* Service Information */}
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
@@ -404,7 +361,7 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
             </View>
           )}
 
-          {statusInfo.showETA && estimatedArrival && (
+          {estimatedArrival && (
             <View style={styles.infoRow}>
               <Ionicons
                 name="time"
@@ -464,10 +421,13 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
         {/* Location Update Indicator */}
         {providerLocation && (
           <View style={styles.updateIndicator}>
-            <Ionicons
-              name="radio-button-on"
-              size={12}
-              color="#4CAF50"
+            <Animated.View
+              style={[
+                styles.liveDot,
+                {
+                  transform: [{ scale: pulseAnimation }],
+                },
+              ]}
             />
             <Text style={styles.updateText}>
               Atualizado há {Math.floor(Math.random() * 30)}s
