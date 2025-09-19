@@ -47,7 +47,23 @@ export default function SimpleUberHome() {
 
   useEffect(() => {
     initLocation();
-  }, []);
+    if (user?.role === 'provider') {
+      loadProviderData();
+    }
+  }, [user?.role]);
+
+  const loadProviderData = async () => {
+    try {
+      const [servicesData, earningsData] = await Promise.all([
+        serviceActionsAPI.getNearbyServices(),
+        serviceActionsAPI.getProviderEarnings()
+      ]);
+      setNearbyServices(servicesData.services || []);
+      setEarnings(earningsData);
+    } catch (error) {
+      console.error('Error loading provider data:', error);
+    }
+  };
 
   const initLocation = async () => {
     try {
