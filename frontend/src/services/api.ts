@@ -6,8 +6,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    // For mobile app, we need to add /api to the backend URL
-    this.baseUrl = `${API_URL}/api`;
+    // The backend URL already includes /api
+    this.baseUrl = API_URL;
     console.log('🔗 API Service initialized with baseUrl:', this.baseUrl);
   }
 
