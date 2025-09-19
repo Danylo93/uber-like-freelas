@@ -11,7 +11,6 @@ export default function SimpleServiceList() {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState([]);
-  const [services, setServices] = useState([]);
   const [showNewServiceModal, setShowNewServiceModal] = useState(false);
   const [newServiceData, setNewServiceData] = useState({
     title: '',
