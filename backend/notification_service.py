@@ -271,3 +271,126 @@ class NotificationService:
                 
         except Exception as e:
             print(f"Error notifying payment received: {e}")
+
+    async def broadcast_provider_status_change(self, provider_id: str, new_status: str):
+        """Broadcast provider status change (for WebSocket integration later)"""
+        try:
+            # For now, just log the status change
+            # This will be integrated with WebSocket/Firebase later
+            print(f"Provider {provider_id} status changed to {new_status}")
+            
+            # Could notify nearby clients that a provider came online/offline
+            if new_status == "online":
+                # Find pending service requests that might be interested
+                pending_services = await self.db.service_requests.find({
+                    "status": "pending"
+                }).to_list(10)
+                
+                for service in pending_services:
+                    client_id = service["client_id"]
+                    push_tokens_map = await self.get_user_push_tokens([client_id])
+                    push_tokens = list(push_tokens_map.values())
+                    
+                    if push_tokens:
+                        await self.send_push_notification(
+                            push_tokens=push_tokens,
+                            title="🟢 Prestador Disponível",
+                            body="Um prestador ficou online próximo a você!",
+                            data={
+                                "type": "provider_online",
+                                "provider_id": provider_id
+                            }
+                        )
+                        break  # Only notify one client to avoid spam
+                        
+        except Exception as e:
+            print(f"Error broadcasting provider status change: {e}")
+
+    async def notify_nearby_providers(self, service_request):
+        """Notify nearby providers about new service request"""
+        try:
+            # Get client info
+            client = await self.db.users.find_one({"id": service_request.client_id})
+            if not client:
+                return
+                
+            # Find online providers
+            providers = await self.db.users.find({
+                "role": "provider",
+                "provider_status": "online"
+            }).to_list(20)
+            
+            if not providers:
+                return
+                
+            provider_ids = [p["id"] for p in providers]
+            push_tokens_map = await self.get_user_push_tokens(provider_ids)
+            push_tokens = list(push_tokens_map.values())
+            
+            if push_tokens:
+                await self.send_push_notification(
+                    push_tokens=push_tokens,
+                    title="📋 Nova Solicitação",
+                    body=f"{client['name']} solicitou: {service_request.title}",
+                    data={
+                        "type": "new_service_request",
+                        "service_id": service_request.id,
+                        "category": service_request.category,
+                        "client_id": client["id"]
+                    }
+                )
+                
+        except Exception as e:
+            print(f"Error notifying nearby providers: {e}")
+
+    async def notify_service_accepted(self, client_id: str, provider: User, service):
+        """Notify client that their service was accepted"""
+        try:
+            push_tokens_map = await self.get_user_push_tokens([client_id])
+            push_tokens = list(push_tokens_map.values())
+            
+            if push_tokens:
+                await self.send_push_notification(
+                    push_tokens=push_tokens,
+                    title="✅ Solicitação Aceita",
+                    body=f"{provider.name} aceitou sua solicitação!",
+                    data={
+                        "type": "service_accepted",
+                        "service_id": service["id"],
+                        "provider_id": provider.id,
+                        "provider_name": provider.name
+                    }
+                )
+                
+        except Exception as e:
+            print(f"Error notifying service accepted: {e}")
+
+    async def notify_service_status_change(self, user_id: str, service_id: str, new_status: str, changed_by: User):
+        """Notify user about service status change"""
+        try:
+            push_tokens_map = await self.get_user_push_tokens([user_id])
+            push_tokens = list(push_tokens_map.values())
+            
+            if push_tokens:
+                status_messages = {
+                    "in_progress": f"🚀 {changed_by.name} iniciou o serviço",
+                    "completed": f"🎉 {changed_by.name} finalizou o serviço",
+                    "cancelled": f"❌ Serviço cancelado por {changed_by.name}"
+                }
+                
+                message = status_messages.get(new_status, f"Status atualizado: {new_status}")
+                
+                await self.send_push_notification(
+                    push_tokens=push_tokens,
+                    title="📄 Status Atualizado",
+                    body=message,
+                    data={
+                        "type": "status_change",
+                        "service_id": service_id,
+                        "new_status": new_status,
+                        "changed_by": changed_by.id
+                    }
+                )
+                
+        except Exception as e:
+            print(f"Error notifying service status change: {e}")
