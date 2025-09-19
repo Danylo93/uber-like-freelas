@@ -6,6 +6,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { RatingModal } from '../../components/ui/RatingModal';
+import { serviceActionsAPI, ServiceRequest } from '../../services/serviceActions';
 
 export default function SimpleUberHome() {
   const themeContext = useTheme();
