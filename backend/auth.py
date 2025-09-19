@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from .models import User, UserCreate, UserLogin, TokenResponse
+from models import User, UserCreate, UserLogin, TokenResponse
 import bcrypt
 
 # Security configuration
