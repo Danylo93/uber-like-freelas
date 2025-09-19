@@ -1397,6 +1397,34 @@ class BackendTester:
         self.test_mark_messages_as_read()
         self.test_mark_messages_as_read_unauthorized()
         
+        print("\n" + "=" * 60)
+        print("🌐 REAL-TIME/WEBSOCKET SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Real-time system tests
+        self.test_realtime_service_imports()
+        self.test_websocket_connection()
+        
+        print("\n" + "=" * 60)
+        print("👥 PROVIDER STATUS SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Provider status tests
+        self.test_update_provider_status_online()
+        self.test_update_provider_status_offline()
+        self.test_update_provider_status_client_forbidden()
+        self.test_update_provider_status_no_auth()
+        
+        print("\n" + "=" * 60)
+        print("📍 NEARBY PROVIDERS SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Nearby providers tests
+        self.test_update_provider_location()
+        self.test_get_nearby_providers_with_location()
+        self.test_get_nearby_providers_no_location()
+        self.test_get_nearby_providers_no_auth()
+        
         # Summary
         print("\n" + "=" * 60)
         print("📊 TEST SUMMARY")
