@@ -297,6 +297,98 @@ async def test_notification(
     else:
         raise HTTPException(status_code=500, detail="Failed to send test notification")
 
+# WebSocket endpoint for real-time communication
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    """WebSocket endpoint for real-time communication"""
+    await realtime_service.handle_websocket_connection(websocket, user_id)
+
+# Provider status update routes
+@api_router.put("/providers/status")
+async def update_provider_status(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Update provider online/offline status"""
+    if current_user.role != UserRole.PROVIDER:
+        raise HTTPException(status_code=403, detail="Only providers can update status")
+    
+    body = await request.json()
+    is_online = body.get("is_online", False)
+    
+    # Update database
+    await database.users.update_one(
+        {"id": current_user.id},
+        {"$set": {"is_online": is_online, "updated_at": datetime.utcnow()}}
+    )
+    
+    # Broadcast via WebSocket
+    connection_manager = realtime_service.get_connection_manager()
+    await connection_manager.broadcast_to_providers({
+        "type": "provider_status_change",
+        "provider_id": current_user.id,
+        "is_online": is_online,
+        "timestamp": datetime.utcnow().isoformat()
+    }, exclude_user_id=current_user.id)
+    
+    return {"message": "Status updated successfully", "is_online": is_online}
+
+@api_router.get("/providers/nearby")
+async def get_nearby_providers(
+    current_user: User = Depends(get_current_user),
+    latitude: float = None,
+    longitude: float = None,
+    radius: float = 10.0  # km
+):
+    """Get nearby online providers"""
+    if not latitude or not longitude:
+        if current_user.location:
+            latitude = current_user.location["latitude"]
+            longitude = current_user.location["longitude"]
+        else:
+            raise HTTPException(status_code=400, detail="Location required")
+    
+    # Get online providers from database
+    providers = await database.users.find({
+        "role": UserRole.PROVIDER,
+        "is_online": True,
+        "location": {"$exists": True}
+    }).to_list(100)
+    
+    # Filter by distance (simplified - in real app use MongoDB geospatial queries)
+    nearby_providers = []
+    for provider in providers:
+        if provider.get("location"):
+            # Simple distance calculation
+            provider_lat = provider["location"]["latitude"]
+            provider_lng = provider["location"]["longitude"]
+            distance = calculate_distance(latitude, longitude, provider_lat, provider_lng)
+            
+            if distance <= radius:
+                provider_data = User(**provider)
+                nearby_providers.append({
+                    "provider": provider_data,
+                    "distance": round(distance, 2)
+                })
+    
+    return {"providers": nearby_providers}
+
+def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """Calculate distance between two points in km"""
+    import math
+    
+    R = 6371  # Earth's radius in km
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lng = math.radians(lng2 - lng1)
+    
+    a = (math.sin(delta_lat / 2) ** 2 +
+         math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng / 2) ** 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c
+
 # Chat/Message routes
 @api_router.post("/chats", response_model=Dict[str, Any])
 async def create_chat(
