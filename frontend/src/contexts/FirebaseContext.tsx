@@ -43,19 +43,32 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
     
     const initializeFirebase = async () => {
       try {
+        console.log('🔥 Starting Firebase initialization...');
+        
         // Check if Firebase is configured
         const hasFirebaseConfig = process.env.EXPO_PUBLIC_FIREBASE_API_KEY && 
                                  process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL;
         
+        console.log('🔥 Firebase config check:', {
+          hasApiKey: !!process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+          hasDatabaseURL: !!process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL,
+          hasProjectId: !!process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+          isConfigured: hasFirebaseConfig
+        });
+        
         if (!hasFirebaseConfig) {
-          console.log('Firebase not configured - using fallback mode');
+          console.log('🔥 Firebase not configured - using fallback mode');
           setIsConnected(false);
           setIsInitializing(false);
           return;
         }
 
-        console.log('Initializing Firebase with credentials provided...');
+        console.log('🔥 Initializing Firebase with credentials provided...');
+        console.log('🔥 Database URL:', process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL);
+        
         await firebaseRealtimeService.initialize();
+        
+        console.log('🔥 Firebase initialization successful!');
         
         if (mounted) {
           setIsConnected(true);
@@ -63,11 +76,12 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
           
           // Subscribe to relevant data based on user role
           if (user) {
+            console.log('🔥 Subscribing to realtime data for user:', user.role);
             subscribeToRealtimeData();
           }
         }
       } catch (error) {
-        console.error('Firebase initialization failed:', error);
+        console.error('🔥 Firebase initialization failed:', error);
         if (mounted) {
           setIsConnected(false);
           setIsInitializing(false);
