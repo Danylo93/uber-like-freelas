@@ -9,7 +9,8 @@ export default function SimpleServiceList() {
   const themeContext = useTheme();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
-  const [services, setServices] = useState([
+  const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState([]);
     { id: '1', title: 'Limpeza Residencial', category: '🧹 Limpeza', price: 'R$ 80,00', status: 'Disponível', clientName: 'Maria Silva', location: 'Vila Madalena', description: 'Limpeza completa de apartamento 2 quartos' },
     { id: '2', title: 'Jardinagem', category: '🌱 Jardinagem', price: 'R$ 120,00', status: 'Em andamento', clientName: 'João Santos', location: 'Pinheiros', description: 'Poda de plantas e manutenção de jardim' },
     { id: '3', title: 'Pintura de Parede', category: '🎨 Pintura', price: 'R$ 200,00', status: 'Concluído', clientName: 'Ana Costa', location: 'Copacabana', description: 'Pintura de sala e dois quartos' }
