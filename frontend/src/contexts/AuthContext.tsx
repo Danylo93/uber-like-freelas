@@ -92,6 +92,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       setUser(response.user);
       console.log('✅ User state updated, login successful');
+      
+      // Force immediate re-render to trigger redirect
+      setTimeout(() => {
+        console.log('🚀 Triggering auth state refresh for redirect');
+      }, 100);
     } catch (error) {
       console.error('❌ Login error:', error);
       throw error; // Re-throw so the UI can handle it
