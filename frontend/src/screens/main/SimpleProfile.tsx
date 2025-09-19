@@ -119,10 +119,24 @@ export default function SimpleProfile() {
 
         <TouchableOpacity style={[styles.menuItem, styles.switchItem]} onPress={handleRoleSwitch} disabled={loading}>
           <Text style={[styles.menuItemText, styles.switchText]}>
-            {loading ? '⏳ Alterando...' : `Trocar para ${isProvider ? 'Cliente' : 'Prestador'}`}
+            {loading ? '⏳ Alterando...' : `🔄 Trocar para ${isProvider ? 'Cliente' : 'Prestador'}`}
           </Text>
-          <Text style={styles.menuItemIcon}>🔄</Text>
+          <Text style={styles.menuItemIcon}>
+            {isProvider ? '🙋‍♂️' : '👷‍♂️'}
+          </Text>
         </TouchableOpacity>
+        
+        <View style={styles.currentRoleInfo}>
+          <Text style={styles.currentRoleText}>
+            Perfil atual: {isProvider ? '👷‍♂️ Prestador de Serviços' : '🙋‍♂️ Cliente'}
+          </Text>
+          <Text style={styles.currentRoleSubtext}>
+            {isProvider 
+              ? 'Você pode aceitar solicitações e prestar serviços'
+              : 'Você pode solicitar serviços dos prestadores'
+            }
+          </Text>
+        </View>
 
         <TouchableOpacity style={[styles.menuItem, styles.dangerItem]} onPress={handleLogout}>
           <Text style={[styles.menuItemText, styles.dangerText]}>Sair</Text>
