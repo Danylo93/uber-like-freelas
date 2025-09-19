@@ -754,6 +754,289 @@ class BackendTester:
             self.log_result("Provider Rating Updated", False, f"Request error: {str(e)}")
         return False
     
+    def test_create_chat(self):
+        """Test creating a new chat between client and provider"""
+        if not self.auth_token or not hasattr(self, 'provider_user_id') or not hasattr(self, 'service_request_id'):
+            self.log_result("Create Chat", False, "Auth token, provider user ID, or service request ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            chat_data = {
+                "participant_id": self.provider_user_id,
+                "service_request_id": self.service_request_id
+            }
+            
+            response = self.session.post(f"{self.base_url}/chats", json=chat_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "id" in data and ("created" in data.get("message", "").lower() or "exists" in data.get("message", "").lower()):
+                    self.chat_id = data["id"]
+                    self.log_result("Create Chat", True, f"Chat created/retrieved successfully: {self.chat_id}")
+                    return True
+                else:
+                    self.log_result("Create Chat", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Create Chat", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Create Chat", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_create_chat_missing_participant(self):
+        """Test creating chat without participant_id should fail"""
+        if not self.auth_token:
+            self.log_result("Create Chat (Missing Participant)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            chat_data = {
+                "service_request_id": self.service_request_id
+                # Missing participant_id
+            }
+            
+            response = self.session.post(f"{self.base_url}/chats", json=chat_data, headers=headers)
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "required" in data.get("detail", "").lower():
+                    self.log_result("Create Chat (Missing Participant)", True, "Correctly rejected missing participant_id")
+                    return True
+                else:
+                    self.log_result("Create Chat (Missing Participant)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Create Chat (Missing Participant)", False, f"Should return 400, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Create Chat (Missing Participant)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_user_chats(self):
+        """Test getting user's chats"""
+        if not self.auth_token:
+            self.log_result("Get User Chats", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/chats", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_result("Get User Chats", True, f"Retrieved {len(data)} chats for user")
+                    return True
+                else:
+                    self.log_result("Get User Chats", False, "Response is not a list", {"response": data})
+            else:
+                self.log_result("Get User Chats", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get User Chats", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_send_message(self):
+        """Test sending a message in a chat"""
+        if not self.auth_token or not hasattr(self, 'chat_id'):
+            self.log_result("Send Message", False, "Auth token or chat ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            message_data = {
+                "content": "Olá! Gostaria de confirmar os detalhes do serviço.",
+                "type": "text"
+            }
+            
+            response = self.session.post(f"{self.base_url}/chats/{self.chat_id}/messages", json=message_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("content") == message_data["content"] and data.get("type") == "text":
+                    self.message_id = data["id"]
+                    self.log_result("Send Message", True, "Message sent successfully")
+                    return True
+                else:
+                    self.log_result("Send Message", False, "Message data mismatch", {"message": data})
+            else:
+                self.log_result("Send Message", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Send Message", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_send_message_provider(self):
+        """Test sending a message as provider"""
+        if not hasattr(self, 'provider_auth_token') or not hasattr(self, 'chat_id'):
+            self.log_result("Send Message (Provider)", False, "Provider auth token or chat ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            message_data = {
+                "content": "Perfeito! Posso começar o serviço amanhã às 9h. Confirma?",
+                "type": "text"
+            }
+            
+            response = self.session.post(f"{self.base_url}/chats/{self.chat_id}/messages", json=message_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("content") == message_data["content"]:
+                    self.log_result("Send Message (Provider)", True, "Provider message sent successfully")
+                    return True
+                else:
+                    self.log_result("Send Message (Provider)", False, "Message data mismatch", {"message": data})
+            else:
+                self.log_result("Send Message (Provider)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Send Message (Provider)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_send_message_unauthorized_chat(self):
+        """Test sending message to chat user is not participant in"""
+        if not self.auth_token:
+            self.log_result("Send Message (Unauthorized)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            fake_chat_id = f"fake_chat_{uuid.uuid4().hex[:8]}"
+            message_data = {
+                "content": "Tentando enviar mensagem para chat não autorizado",
+                "type": "text"
+            }
+            
+            response = self.session.post(f"{self.base_url}/chats/{fake_chat_id}/messages", json=message_data, headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "access denied" in data.get("detail", "").lower():
+                    self.log_result("Send Message (Unauthorized)", True, "Correctly rejected unauthorized chat access")
+                    return True
+                else:
+                    self.log_result("Send Message (Unauthorized)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Send Message (Unauthorized)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Send Message (Unauthorized)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_chat_messages(self):
+        """Test getting messages from a chat"""
+        if not self.auth_token or not hasattr(self, 'chat_id'):
+            self.log_result("Get Chat Messages", False, "Auth token or chat ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/chats/{self.chat_id}/messages", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_result("Get Chat Messages", True, f"Retrieved {len(data)} messages from chat")
+                    return True
+                else:
+                    self.log_result("Get Chat Messages", False, "Response is not a list", {"response": data})
+            else:
+                self.log_result("Get Chat Messages", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Chat Messages", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_chat_messages_with_pagination(self):
+        """Test getting chat messages with pagination parameters"""
+        if not self.auth_token or not hasattr(self, 'chat_id'):
+            self.log_result("Get Chat Messages (Pagination)", False, "Auth token or chat ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/chats/{self.chat_id}/messages?limit=10&offset=0", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_result("Get Chat Messages (Pagination)", True, f"Retrieved {len(data)} messages with pagination")
+                    return True
+                else:
+                    self.log_result("Get Chat Messages (Pagination)", False, "Response is not a list", {"response": data})
+            else:
+                self.log_result("Get Chat Messages (Pagination)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Chat Messages (Pagination)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_chat_messages_unauthorized(self):
+        """Test getting messages from chat user is not participant in"""
+        if not self.auth_token:
+            self.log_result("Get Chat Messages (Unauthorized)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            fake_chat_id = f"fake_chat_{uuid.uuid4().hex[:8]}"
+            response = self.session.get(f"{self.base_url}/chats/{fake_chat_id}/messages", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "access denied" in data.get("detail", "").lower():
+                    self.log_result("Get Chat Messages (Unauthorized)", True, "Correctly rejected unauthorized chat access")
+                    return True
+                else:
+                    self.log_result("Get Chat Messages (Unauthorized)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Get Chat Messages (Unauthorized)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Chat Messages (Unauthorized)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_mark_messages_as_read(self):
+        """Test marking messages as read in a chat"""
+        if not self.auth_token or not hasattr(self, 'chat_id'):
+            self.log_result("Mark Messages as Read", False, "Auth token or chat ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.put(f"{self.base_url}/chats/{self.chat_id}/read", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "marked as read" in data.get("message", "").lower():
+                    self.log_result("Mark Messages as Read", True, "Messages marked as read successfully")
+                    return True
+                else:
+                    self.log_result("Mark Messages as Read", False, "Unexpected response message", {"response": data})
+            else:
+                self.log_result("Mark Messages as Read", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Mark Messages as Read", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_mark_messages_as_read_unauthorized(self):
+        """Test marking messages as read in unauthorized chat"""
+        if not self.auth_token:
+            self.log_result("Mark Messages as Read (Unauthorized)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            fake_chat_id = f"fake_chat_{uuid.uuid4().hex[:8]}"
+            response = self.session.put(f"{self.base_url}/chats/{fake_chat_id}/read", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "access denied" in data.get("detail", "").lower():
+                    self.log_result("Mark Messages as Read (Unauthorized)", True, "Correctly rejected unauthorized chat access")
+                    return True
+                else:
+                    self.log_result("Mark Messages as Read (Unauthorized)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Mark Messages as Read (Unauthorized)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Mark Messages as Read (Unauthorized)", False, f"Request error: {str(e)}")
+        return False
+    
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests...")
