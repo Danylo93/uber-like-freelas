@@ -165,6 +165,88 @@ async def update_location(
     )
     return {"message": "Location updated successfully"}
 
+# Review routes
+@api_router.post("/services/reviews", response_model=Review)
+async def create_review(
+    review_create: ReviewCreate,
+    current_user: User = Depends(get_current_user)
+):
+    # Verify service request exists and user was involved
+    service_request = await database.service_requests.find_one({"id": review_create.service_request_id})
+    if not service_request:
+        raise HTTPException(status_code=404, detail="Service request not found")
+    
+    # Verify user was part of this service (client or provider)
+    if current_user.id not in [service_request.get("client_id"), service_request.get("provider_id")]:
+        raise HTTPException(status_code=403, detail="You can only review services you participated in")
+    
+    # Determine reviewee (who is being reviewed)
+    reviewee_id = service_request.get("provider_id") if current_user.id == service_request.get("client_id") else service_request.get("client_id")
+    
+    # Check if review already exists
+    existing_review = await database.reviews.find_one({
+        "service_request_id": review_create.service_request_id,
+        "reviewer_id": current_user.id
+    })
+    if existing_review:
+        raise HTTPException(status_code=409, detail="You have already reviewed this service")
+    
+    review = Review(**review_create.dict(), reviewer_id=current_user.id, reviewee_id=reviewee_id)
+    review_data = review.dict()
+    review_data["_id"] = review_data["id"]
+    
+    await database.reviews.insert_one(review_data)
+    
+    # Update provider's rating if they were reviewed
+    if reviewee_id == service_request.get("provider_id"):
+        await update_provider_rating(reviewee_id)
+    
+    return review
+
+@api_router.get("/services/reviews/{service_request_id}", response_model=List[Review])
+async def get_service_reviews(
+    service_request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    # Verify user has access to this service request
+    service_request = await database.service_requests.find_one({"id": service_request_id})
+    if not service_request:
+        raise HTTPException(status_code=404, detail="Service request not found")
+    
+    if current_user.id not in [service_request.get("client_id"), service_request.get("provider_id")]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    reviews = await database.reviews.find({"service_request_id": service_request_id}).to_list(10)
+    return [Review(**{**review, "id": str(review.get("_id", review.get("id")))}) for review in reviews]
+
+@api_router.get("/users/{user_id}/reviews", response_model=List[Review])
+async def get_user_reviews(user_id: str):
+    """Get reviews for a specific user (provider or client)"""
+    reviews = await database.reviews.find({"reviewee_id": user_id}).to_list(100)
+    return [Review(**{**review, "id": str(review.get("_id", review.get("id")))}) for review in reviews]
+
+async def update_provider_rating(provider_id: str):
+    """Update provider's average rating based on reviews"""
+    pipeline = [
+        {"$match": {"reviewee_id": provider_id}},
+        {"$group": {
+            "_id": None,
+            "average_rating": {"$avg": "$rating"},
+            "review_count": {"$sum": 1}
+        }}
+    ]
+    
+    result = await database.reviews.aggregate(pipeline).to_list(1)
+    if result:
+        avg_rating = round(result[0]["average_rating"], 1)
+        await database.users.update_one(
+            {"id": provider_id},
+            {"$set": {
+                "rating": avg_rating,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+
 # Webhook route (outside /api prefix for Stripe)
 @app.post("/api/webhook/stripe") 
 async def stripe_webhook_direct(request: Request):
