@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiService } from '../api/apiService';
+import { apiService } from '../services/api';
 
 export interface Review {
   id: string;
