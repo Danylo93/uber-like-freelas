@@ -286,10 +286,34 @@
         agent: "main"
         comment: "Removed MapView dependency and replaced with placeholder to resolve react-native-maps compatibility issues. Added Alert feedback for user interactions. Map functionality will be implemented later."
 
+  - task: "Push Notifications System"
+    implemented: true
+    working: "NA"
+    file: "notification_service.py, server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive push notification system with NotificationService class, added routes for saving push tokens and testing notifications"
+
+  - task: "Rating System Backend"
+    implemented: true
+    working: "NA"
+    file: "server.py, models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added Review API endpoints: create review, get service reviews, get user reviews, automatic provider rating calculation"
+
 ## metadata:
   created_by: "main_agent"
-  version: "1.0"
-  test_sequence: 1
+  version: "1.1"
+  test_sequence: 2
   run_ui: false
 
 ## test_plan:
