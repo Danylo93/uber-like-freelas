@@ -47,10 +47,17 @@ export default function SimpleProfile() {
                 [
                   {
                     text: 'OK',
-                    onPress: () => {
+                    onPress: async () => {
                       // Refresh user data to get updated role
-                      if (refreshUser) {
-                        refreshUser();
+                      try {
+                        if (refreshUser) {
+                          await refreshUser();
+                        }
+                        // Force a re-render by updating local state
+                        Alert.alert('Sucesso!', 'Perfil alterado com sucesso! A interface será atualizada.');
+                      } catch (error) {
+                        console.error('Error refreshing user:', error);
+                        Alert.alert('Aviso', 'Perfil alterado, mas pode ser necessário fazer login novamente.');
                       }
                     }
                   }
