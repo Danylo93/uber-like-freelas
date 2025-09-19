@@ -18,8 +18,11 @@ import { RealTimeTracker } from '../../components/uber/RealTimeTracker';
 import { EarningsDashboard } from '../../components/uber/EarningsDashboard';
 import { ProviderStatusToggle } from '../../components/uber/ProviderStatusToggle';
 import { TurnByTurnNavigation } from '../../components/uber/TurnByTurnNavigation';
+import { RealTimeNotifications, useRealTimeNotifications } from '../../components/uber/RealTimeNotifications';
 import { useRealTimeService } from '../../hooks/useRealTimeService';
 import { useDirections } from '../../hooks/useDirections';
+import { providerSimulator } from '../../services/providerSimulator';
+import { ServiceProvider } from '../../contexts/MatchingContext';
 
 export default function UberHomeScreen() {
   const { theme } = useTheme();
