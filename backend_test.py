@@ -1156,6 +1156,14 @@ class BackendTester:
         print("  • Validate service participation")
         print("  • Automatic provider rating calculation")
         print("  • Get service and user reviews")
+        print("")
+        print("✅ Chat System:")
+        print("  • Create chats between users")
+        print("  • Send and receive messages")
+        print("  • Get chat history with pagination")
+        print("  • Mark messages as read")
+        print("  • Access control validation")
+        print("  • Push notifications for new messages")
         
         return failed == 0
 
