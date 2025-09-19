@@ -91,15 +91,15 @@ export const TextInput: React.FC<CustomTextInputProps> = ({
     <View style={containerStyle}>
       {label && <Text style={getLabelStyle()}>{label}</Text>}
       <View style={getContainerStyle()}>
-        {leftIcon && <View style={{ marginRight: theme.spacing.sm }}>{leftIcon}</View>}
+        {leftIcon && <View style={{ marginRight: theme?.spacing?.sm || 8 }}>{leftIcon}</View>}
         <RNTextInput
           style={[getInputStyle(), inputStyle]}
-          placeholderTextColor={theme.colors.onSurfaceVariant}
+          placeholderTextColor={theme?.colors?.onSurfaceVariant || '#49454F'}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           {...props}
         />
-        {rightIcon && <View style={{ marginLeft: theme.spacing.sm }}>{rightIcon}</View>}
+        {rightIcon && <View style={{ marginLeft: theme?.spacing?.sm || 8 }}>{rightIcon}</View>}
       </View>
       {(error || helper) && (
         <Text style={getHelperStyle()}>{error || helper}</Text>
