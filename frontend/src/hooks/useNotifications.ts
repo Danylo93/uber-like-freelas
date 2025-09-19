@@ -3,7 +3,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
-import { apiService } from '../api/apiService';
+import { apiService } from '../services/api';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
