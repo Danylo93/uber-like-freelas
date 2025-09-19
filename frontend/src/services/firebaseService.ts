@@ -71,26 +71,40 @@ class FirebaseRealtimeService {
   private auth: any = null;
 
   async initialize() {
-    if (this.initialized) return;
+    if (this.initialized) {
+      console.log('🔥 Firebase already initialized');
+      return;
+    }
     
     try {
+      console.log('🔥 FirebaseService.initialize() called');
+      
       // Check if Firebase is properly configured
       if (!isFirebaseConfigured) {
-        console.log('Firebase not configured - missing credentials');
+        console.log('🔥 Firebase not configured - missing credentials in firebaseService');
         return;
       }
 
+      console.log('🔥 Initializing Firebase app...');
       // Initialize Firebase components only when needed
       this.app = initializeApp(firebaseConfig);
+      console.log('🔥 Firebase app initialized');
+      
       this.database = getDatabase(this.app);
+      console.log('🔥 Firebase database initialized');
+      
       this.auth = getAuth(this.app);
+      console.log('🔥 Firebase auth initialized');
       
       // Sign in anonymously to Firebase
+      console.log('🔥 Signing in anonymously...');
       await signInAnonymously(this.auth);
+      console.log('🔥 Anonymous sign-in successful');
+      
       this.initialized = true;
-      console.log('Firebase Realtime Database initialized successfully');
+      console.log('🔥 Firebase Realtime Database initialized successfully');
     } catch (error) {
-      console.error('Firebase initialization error:', error);
+      console.error('🔥 Firebase initialization error:', error);
       throw error;
     }
   }
