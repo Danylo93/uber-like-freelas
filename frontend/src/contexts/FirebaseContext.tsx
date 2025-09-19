@@ -54,17 +54,20 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
           return;
         }
 
-        await firebaseRealtimeService.initialize();
+        // For now, keep Firebase disabled until credentials are provided
+        console.log('Firebase configuration ready, but initialization disabled until credentials provided');
+        setIsConnected(false);
+        setIsInitializing(false);
         
-        if (mounted) {
-          setIsConnected(true);
-          setIsInitializing(false);
-          
-          // Subscribe to relevant data based on user role
-          if (user) {
-            subscribeToRealtimeData();
-          }
-        }
+        // Uncomment the following lines when Firebase credentials are provided:
+        // await firebaseRealtimeService.initialize();
+        // if (mounted) {
+        //   setIsConnected(true);
+        //   setIsInitializing(false);
+        //   if (user) {
+        //     subscribeToRealtimeData();
+        //   }
+        // }
       } catch (error) {
         console.error('Firebase initialization failed:', error);
         if (mounted) {
