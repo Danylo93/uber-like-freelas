@@ -385,6 +385,47 @@ class BackendTester:
             self.log_result("Create Offer", False, f"Request error: {str(e)}")
         return False
     
+    def test_simulate_service_acceptance(self):
+        """Simulate service acceptance by updating service request with provider_id"""
+        if not hasattr(self, 'service_request_id') or not hasattr(self, 'provider_user_id'):
+            self.log_result("Simulate Service Acceptance", False, "Service request ID or provider user ID not available")
+            return False
+        
+        try:
+            # Directly update the service request in the database to assign provider
+            # This simulates the service being accepted
+            import requests
+            from pymongo import MongoClient
+            import os
+            
+            # Connect to MongoDB directly to update the service request
+            # This is a test-only operation to simulate service acceptance
+            mongo_url = "mongodb://localhost:27017"
+            client = MongoClient(mongo_url)
+            db = client["test_database"]
+            
+            # Update service request to assign provider
+            result = db.service_requests.update_one(
+                {"id": self.service_request_id},
+                {"$set": {
+                    "provider_id": self.provider_user_id,
+                    "status": "accepted"
+                }}
+            )
+            
+            if result.modified_count > 0:
+                self.log_result("Simulate Service Acceptance", True, "Service request updated with provider")
+                client.close()
+                return True
+            else:
+                self.log_result("Simulate Service Acceptance", False, "Failed to update service request")
+                client.close()
+                return False
+                
+        except Exception as e:
+            self.log_result("Simulate Service Acceptance", False, f"Database update error: {str(e)}")
+            return False
+    
     def test_save_push_token_client(self):
         """Test saving push token for client"""
         if not self.auth_token:
