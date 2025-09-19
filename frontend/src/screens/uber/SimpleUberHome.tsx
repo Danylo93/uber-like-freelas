@@ -319,7 +319,14 @@ export default function SimpleUberHome() {
     providerCard: { backgroundColor: theme.colors.surface, padding: 16, borderRadius: 12, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
     providerName: { fontSize: 18, fontWeight: 'bold', color: theme.colors.onSurface, marginBottom: 8 },
     providerInfo: { fontSize: 14, color: theme.colors.onSurfaceVariant, marginBottom: 4 },
-    providerPrice: { fontSize: 16, fontWeight: 'bold', color: theme.colors.primary, marginTop: 8 }
+    providerPrice: { fontSize: 16, fontWeight: 'bold', color: theme.colors.primary, marginTop: 8 },
+    
+    // Stats container
+    statsContainer: { backgroundColor: '#F0F0F0', padding: 12, borderRadius: 8, marginBottom: 16 },
+    statsTitle: { fontSize: 14, fontWeight: 'bold', color: theme.colors.onSurface, marginBottom: 8, textAlign: 'center' },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+    statsLabel: { fontSize: 12, color: theme.colors.onSurfaceVariant },
+    statsValue: { fontSize: 12, fontWeight: '600', color: theme.colors.onSurface }
   });
 
   const isClient = user?.role === 'client';
