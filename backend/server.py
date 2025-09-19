@@ -291,6 +291,154 @@ async def test_notification(
     else:
         raise HTTPException(status_code=500, detail="Failed to send test notification")
 
+# Chat/Message routes
+@api_router.post("/chats", response_model=Dict[str, Any])
+async def create_chat(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    body = await request.json()
+    participant_id = body.get("participant_id")
+    service_request_id = body.get("service_request_id")
+    
+    if not participant_id:
+        raise HTTPException(status_code=400, detail="Participant ID is required")
+    
+    # Create or get existing chat
+    chat_id = f"service_{service_request_id}" if service_request_id else f"chat_{current_user.id}_{participant_id}"
+    
+    # Check if chat already exists
+    existing_chat = await database.chats.find_one({"id": chat_id})
+    if existing_chat:
+        return {"id": chat_id, "message": "Chat already exists"}
+    
+    # Create new chat
+    chat_data = {
+        "id": chat_id,
+        "participants": [current_user.id, participant_id],
+        "service_request_id": service_request_id,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await database.chats.insert_one({**chat_data, "_id": chat_id})
+    return {"id": chat_id, "message": "Chat created successfully"}
+
+@api_router.get("/chats", response_model=List[Dict[str, Any]])
+async def get_user_chats(current_user: User = Depends(get_current_user)):
+    # Get chats where user is a participant
+    chats = await database.chats.find({
+        "participants": current_user.id
+    }).to_list(100)
+    
+    # For each chat, get the last message and participant info
+    result = []
+    for chat in chats:
+        # Get last message
+        last_message = await database.messages.find_one(
+            {"chat_id": chat["id"]},
+            sort=[("created_at", -1)]
+        )
+        
+        # Get participant info
+        other_participant_id = next((p for p in chat["participants"] if p != current_user.id), None)
+        participant_info = None
+        if other_participant_id:
+            participant_info = await database.users.find_one({"id": other_participant_id})
+        
+        chat_data = {
+            "id": chat["id"],
+            "participants": chat["participants"],
+            "service_request_id": chat.get("service_request_id"),
+            "last_message": last_message,
+            "participant_name": participant_info.get("name", "Unknown") if participant_info else "Unknown",
+            "updated_at": chat["updated_at"]
+        }
+        result.append(chat_data)
+    
+    return result
+
+@api_router.post("/chats/{chat_id}/messages", response_model=Message)
+async def send_message(
+    chat_id: str,
+    message_create: MessageCreate,
+    current_user: User = Depends(get_current_user)
+):
+    # Verify user is participant in this chat
+    chat = await database.chats.find_one({"id": chat_id})
+    if not chat or current_user.id not in chat["participants"]:
+        raise HTTPException(status_code=403, detail="Access denied to this chat")
+    
+    # Create message
+    message = Message(**message_create.dict(), sender_id=current_user.id)
+    message_data = message.dict()
+    message_data["_id"] = message_data["id"]
+    message_data["chat_id"] = chat_id
+    
+    await database.messages.insert_one(message_data)
+    
+    # Update chat last activity
+    await database.chats.update_one(
+        {"id": chat_id},
+        {"$set": {"updated_at": datetime.utcnow()}}
+    )
+    
+    # Send push notification to other participants
+    other_participants = [p for p in chat["participants"] if p != current_user.id]
+    if other_participants:
+        await notification_service.notify_new_message(
+            sender=current_user,
+            receiver_id=other_participants[0],  # Assuming 1-on-1 chat
+            message=message.content,
+            chat_id=chat_id
+        )
+    
+    return message
+
+@api_router.get("/chats/{chat_id}/messages", response_model=List[Message])
+async def get_chat_messages(
+    chat_id: str,
+    current_user: User = Depends(get_current_user),
+    limit: int = 50,
+    offset: int = 0
+):
+    # Verify user is participant in this chat
+    chat = await database.chats.find_one({"id": chat_id})
+    if not chat or current_user.id not in chat["participants"]:
+        raise HTTPException(status_code=403, detail="Access denied to this chat")
+    
+    # Get messages
+    messages = await database.messages.find(
+        {"chat_id": chat_id}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Reverse to get chronological order
+    messages.reverse()
+    
+    return [Message(**{**msg, "id": str(msg.get("_id", msg.get("id")))}) for msg in messages]
+
+@api_router.put("/chats/{chat_id}/read")
+async def mark_messages_as_read(
+    chat_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    # Verify user is participant in this chat
+    chat = await database.chats.find_one({"id": chat_id})
+    if not chat or current_user.id not in chat["participants"]:
+        raise HTTPException(status_code=403, detail="Access denied to this chat")
+    
+    # Mark all unread messages from other participants as read
+    await database.messages.update_many(
+        {
+            "chat_id": chat_id,
+            "sender_id": {"$ne": current_user.id},
+            "read_at": None
+        },
+        {"$set": {"read_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Messages marked as read"}
+
 # Webhook route (outside /api prefix for Stripe)
 @app.post("/api/webhook/stripe") 
 async def stripe_webhook_direct(request: Request):
