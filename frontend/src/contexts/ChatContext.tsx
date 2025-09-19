@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Alert } from 'react-native';
-import { apiService } from '../services/api';
+import { apiService } from '../api/apiService';
 import { useAuth } from './AuthContext';
 
 interface Message {
