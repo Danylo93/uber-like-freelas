@@ -7,6 +7,7 @@ import { ThemeProvider } from '../src/contexts/ThemeContext';
 import { AuthProvider } from '../src/contexts/AuthContext';
 import { ServicesProvider } from '../src/contexts/ServicesContext';
 import { ChatProvider } from '../src/contexts/ChatContext';
+import { WebSocketProvider } from '../src/contexts/WebSocketContext';
 import { MatchingProvider } from '../src/contexts/MatchingContext';
 
 const queryClient = new QueryClient();
