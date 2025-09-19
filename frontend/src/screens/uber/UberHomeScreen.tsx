@@ -526,6 +526,19 @@ export default function UberHomeScreen() {
     cancelButton: {
       marginTop: theme.spacing.md,
     },
+    // New styles for provider interface
+    offlineMessage: {
+      alignItems: 'center',
+      paddingVertical: theme.spacing.xl,
+    },
+    onlineMessage: {
+      alignItems: 'center',
+      paddingVertical: theme.spacing.lg,
+    },
+    earningsButton: {
+      marginTop: theme.spacing.md,
+      minWidth: 120,
+    },
   });
 
   return (
@@ -544,11 +557,38 @@ export default function UberHomeScreen() {
         showUserLocation={true}
       />
 
-      <UberSearchBar
-        onPress={handleSearchPress}
-        placeholder="Que serviço você precisa?"
-        address={serviceAddress}
-      />
+      {/* Show search bar only for clients */}
+      {user?.role === 'client' && (
+        <UberSearchBar
+          onPress={handleSearchPress}
+          placeholder="Que serviço você precisa?"
+          address={serviceAddress}
+        />
+      )}
+
+      {/* Show earnings dashboard button for providers when online */}
+      {user?.role === 'provider' && isProviderOnline && !shouldShowEarningsDashboard && (
+        <View style={{ position: 'absolute', top: 60, right: 16 }}>
+          <Button
+            title="Ganhos"
+            onPress={() => setShowEarningsDashboard(true)}
+            variant="outlined"
+            style={{ backgroundColor: theme.colors.surface }}
+          />
+        </View>
+      )}
+
+      {/* Back button for earnings dashboard */}
+      {shouldShowEarningsDashboard && (
+        <View style={{ position: 'absolute', top: 60, left: 16, zIndex: 1000 }}>
+          <Button
+            title="← Voltar"
+            onPress={() => setShowEarningsDashboard(false)}
+            variant="outlined"
+            style={{ backgroundColor: theme.colors.surface }}
+          />
+        </View>
+      )}
 
       <BottomSheet
         snapPoints={getSnapPoints()}
@@ -556,6 +596,27 @@ export default function UberHomeScreen() {
       >
         {getBottomSheetContent()}
       </BottomSheet>
+
+      {/* Searching Animation Overlay */}
+      <SearchingAnimation
+        isVisible={showSearchingAnimation}
+        onCancel={() => {
+          setShowSearchingAnimation(false);
+          cancelService();
+        }}
+        searchText="Procurando prestadores..."
+        subtitle="Encontraremos os melhores profissionais para você"
+      />
+
+      {/* Service Request Modal for Providers */}
+      <ServiceRequestModal
+        visible={!!pendingServiceRequest}
+        serviceRequest={pendingServiceRequest}
+        onAccept={() => handleServiceRequestResponse(pendingServiceRequest?.id || '', true)}
+        onReject={() => handleServiceRequestResponse(pendingServiceRequest?.id || '', false)}
+        onCancel={() => setPendingServiceRequest(null)}
+        timeLeft={30}
+      />
     </SafeAreaView>
   );
 }
