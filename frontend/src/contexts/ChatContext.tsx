@@ -206,8 +206,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         )
       );
 
-      // In a real app, send to backend here
-      // await apiService.markMessagesAsRead(chatId);
+      // Mark messages as read in backend
+      await apiService.put(`/chats/${chatId}/read`);
 
     } catch (error) {
       console.error('Error marking as read:', error);
