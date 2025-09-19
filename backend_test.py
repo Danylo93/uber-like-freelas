@@ -719,6 +719,15 @@ class BackendTester:
         print(f"Testing against: {self.base_url}")
         print("=" * 60)
         
+        # Initialize variables for cross-test data sharing
+        self.service_request_id = None
+        self.provider_auth_token = None
+        self.provider_user_id = None
+        self.offer_id = None
+        self.review_id = None
+        self.client_push_token = None
+        self.provider_push_token = None
+        
         # Core API tests
         self.test_health_check()
         
@@ -739,6 +748,35 @@ class BackendTester:
         self.test_service_request_creation()
         self.test_get_service_requests()
         
+        # Provider login and offer creation
+        self.test_provider_login()
+        self.test_create_offer()
+        
+        print("\n" + "=" * 60)
+        print("🔔 PUSH NOTIFICATION SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Push notification tests
+        self.test_save_push_token_client()
+        self.test_save_push_token_provider()
+        self.test_save_push_token_no_auth()
+        self.test_save_push_token_invalid_data()
+        self.test_send_test_notification()
+        self.test_send_test_notification_no_auth()
+        
+        print("\n" + "=" * 60)
+        print("⭐ RATING SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Rating system tests
+        self.test_create_review()
+        self.test_create_duplicate_review()
+        self.test_create_review_unauthorized_service()
+        self.test_create_review_invalid_rating()
+        self.test_get_service_reviews()
+        self.test_get_user_reviews()
+        self.test_provider_rating_updated()
+        
         # Summary
         print("\n" + "=" * 60)
         print("📊 TEST SUMMARY")
@@ -758,6 +796,22 @@ class BackendTester:
                     print(f"  • {result['test']}: {result['message']}")
                     if result["details"]:
                         print(f"    Details: {result['details']}")
+        
+        print("\n" + "=" * 60)
+        print("🎯 NEW FEATURES TESTED:")
+        print("=" * 60)
+        print("✅ Push Notification System:")
+        print("  • Save push tokens for authenticated users")
+        print("  • Send test notifications")
+        print("  • Authentication validation")
+        print("  • Data validation")
+        print("")
+        print("✅ Rating System:")
+        print("  • Create reviews for services")
+        print("  • Prevent duplicate reviews")
+        print("  • Validate service participation")
+        print("  • Automatic provider rating calculation")
+        print("  • Get service and user reviews")
         
         return failed == 0
 
