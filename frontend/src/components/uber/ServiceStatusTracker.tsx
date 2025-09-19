@@ -36,7 +36,26 @@ export const ServiceStatusTracker: React.FC<ServiceStatusTrackerProps> = ({
   onChatProvider,
   style,
 }) => {
-  const { colors, typography } = useTheme();
+  const themeContext = useTheme();
+  
+  // Fallback colors and typography
+  const colors = themeContext?.theme?.colors || {
+    surface: '#FFFFFF',
+    surfaceVariant: '#F3F3F3',
+    onSurface: '#1C1B1F',
+    onSurfaceVariant: '#49454F',
+    primary: '#6750A4',
+    secondary: '#625B71',
+    outline: '#79747E',
+    error: '#BA1A1A',
+  };
+  
+  const typography = themeContext?.theme?.typography || {
+    headlineSmall: { fontSize: 24, fontWeight: '600' },
+    titleSmall: { fontSize: 14, fontWeight: '600' },
+    bodyMedium: { fontSize: 14 },
+    bodySmall: { fontSize: 12 },
+  };
   const [progress] = useState(new Animated.Value(0));
 
   const getSteps = (): ServiceStep[] => {
