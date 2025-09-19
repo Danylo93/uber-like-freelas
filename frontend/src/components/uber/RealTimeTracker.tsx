@@ -362,6 +362,19 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
             </TouchableOpacity>
           )}
 
+          {onStartNavigation && serviceRequest.status !== 'completed' && (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.navigationButton]}
+              onPress={onStartNavigation}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="navigate" size={16} color={colors.secondary} />
+              <Text style={[styles.buttonText, { color: colors.secondary }]}>
+                Navegar
+              </Text>
+            </TouchableOpacity>
+          )}
+
           {onCancelService && serviceRequest.status !== 'completed' && serviceRequest.status !== 'in_progress' && (
             <TouchableOpacity
               style={[styles.actionButton, styles.cancelButton]}
