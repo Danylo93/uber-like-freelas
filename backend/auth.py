@@ -43,7 +43,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 async def get_user_by_email(email: str) -> Optional[User]:
-    if not db:
+    if db is None:
         return None
     
     user_data = await db.users.find_one({"email": email})
