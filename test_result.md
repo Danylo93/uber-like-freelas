@@ -377,12 +377,13 @@
 
 ## test_plan:
   current_focus:
-    - "Chat System Backend"
+    - "Login Screen"
+    - "Authentication Context"
     - "Frontend Chat Context Update"
-    - "Rating Components Frontend"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Login Screen"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 ## agent_communication:
   - agent: "main"
