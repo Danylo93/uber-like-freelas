@@ -57,62 +57,62 @@ export const LoginScreen: React.FC = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme?.colors?.background || '#FFFFFF',
     },
     scrollContent: {
       flexGrow: 1,
-      padding: theme.spacing.md,
+      padding: theme?.spacing?.md || 16,
       justifyContent: 'center',
     },
     header: {
       alignItems: 'center',
-      marginBottom: theme.spacing.xl,
+      marginBottom: theme?.spacing?.xl || 32,
     },
     title: {
-      ...theme.typography.displayMedium,
-      color: theme.colors.onBackground,
+      ...(theme?.typography?.displayMedium || {}),
+      color: theme?.colors?.onBackground || '#1C1B1F',
       textAlign: 'center',
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme?.spacing?.sm || 8,
     },
     subtitle: {
-      ...theme.typography.bodyLarge,
-      color: theme.colors.onSurfaceVariant,
+      ...(theme?.typography?.bodyLarge || {}),
+      color: theme?.colors?.onSurfaceVariant || '#49454F',
       textAlign: 'center',
     },
     form: {
-      gap: theme.spacing.md,
+      gap: theme?.spacing?.md || 16,
     },
     buttonContainer: {
-      gap: theme.spacing.sm,
-      marginTop: theme.spacing.md,
+      gap: theme?.spacing?.sm || 8,
+      marginTop: theme?.spacing?.md || 16,
     },
     divider: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginVertical: theme.spacing.md,
+      marginVertical: theme?.spacing?.md || 16,
     },
     dividerLine: {
       flex: 1,
       height: 1,
-      backgroundColor: theme.colors.outlineVariant,
+      backgroundColor: theme?.colors?.outlineVariant || '#CAC4D0',
     },
     dividerText: {
-      ...theme.typography.bodyMedium,
-      color: theme.colors.onSurfaceVariant,
-      marginHorizontal: theme.spacing.md,
+      ...(theme?.typography?.bodyMedium || {}),
+      color: theme?.colors?.onSurfaceVariant || '#49454F',
+      marginHorizontal: theme?.spacing?.md || 16,
     },
     footer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      marginTop: theme.spacing.lg,
+      marginTop: theme?.spacing?.lg || 24,
     },
     footerText: {
-      ...theme.typography.bodyMedium,
-      color: theme.colors.onSurfaceVariant,
+      ...(theme?.typography?.bodyMedium || {}),
+      color: theme?.colors?.onSurfaceVariant || '#49454F',
     },
     linkText: {
-      ...theme.typography.bodyMedium,
-      color: theme.colors.primary,
+      ...(theme?.typography?.bodyMedium || {}),
+      color: theme?.colors?.primary || '#6750A4',
       fontWeight: '500',
     },
   });
