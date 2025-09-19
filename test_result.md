@@ -432,6 +432,15 @@
     - "Login Screen"
   test_all: false
   test_priority: "stuck_first"
+  completed_backend_testing:
+    - "Real-Time WebSocket System"
+    - "Provider Status Management"
+    - "Nearby Providers System"
+    - "Chat System Backend"
+    - "Rating System Backend"
+    - "Push Notifications System"
+    - "Authentication System"
+    - "API Endpoints - All"
 
 ## agent_communication:
   - agent: "main"
