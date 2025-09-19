@@ -120,9 +120,8 @@ class Review(ReviewCreate):
 
 # Message Models
 class MessageCreate(BaseModel):
-    service_request_id: str
     content: str
-    message_type: str = "text"  # text, image, location
+    type: str = "text"  # text, image, location
 
 class Message(MessageCreate):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
