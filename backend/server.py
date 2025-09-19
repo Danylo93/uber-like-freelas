@@ -567,6 +567,7 @@ async def stripe_webhook_direct(request: Request):
 app.include_router(api_router)
 app.include_router(payment_router)
 app.include_router(ai_router)
+app.include_router(service_actions.router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
