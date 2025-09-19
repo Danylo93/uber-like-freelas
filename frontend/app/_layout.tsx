@@ -29,7 +29,6 @@ export default function RootLayout() {
                     />
                   </MatchingProvider>
                 </ChatProvider>
-              </ServicesProvider>
             </WebSocketProvider>
           </AuthProvider>
         </ThemeProvider>
