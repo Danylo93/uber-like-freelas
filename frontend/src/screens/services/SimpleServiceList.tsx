@@ -113,29 +113,40 @@ export default function SimpleServiceList() {
     }
   };
 
-  const handleNewService = () => {
+  const handleNewService = async () => {
     if (!newServiceData.title.trim()) {
       Alert.alert('Erro', 'Por favor, adicione um título para o serviço');
       return;
     }
 
-    const selectedCategory = serviceCategories.find(cat => cat.id === newServiceData.category);
-    const newService = {
-      id: Date.now().toString(),
-      title: newServiceData.title,
-      category: `${selectedCategory?.icon} ${selectedCategory?.name}`,
-      price: newServiceData.budget || 'A negociar',
-      status: 'Disponível',
-      clientName: user?.name || 'Você',
-      location: 'Sua localização',
-      description: newServiceData.description
-    };
+    try {
+      setLoading(true);
+      const response = await serviceActionsAPI.createServiceRequest({
+        title: newServiceData.title,
+        category: newServiceData.category,
+        description: newServiceData.description,
+        budget: newServiceData.budget ? parseFloat(newServiceData.budget.replace(/[^\d.,]/g, '').replace(',', '.')) : undefined
+      });
 
-    setServices(prev => [newService, ...prev]);
-    setShowNewServiceModal(false);
-    setNewServiceData({ title: '', category: 'limpeza', description: '', budget: '' });
-    
-    Alert.alert('🎉 Sucesso!', 'Sua solicitação foi publicada e os prestadores próximos foram notificados!');
+      setShowNewServiceModal(false);
+      setNewServiceData({ title: '', category: 'limpeza', description: '', budget: '' });
+      
+      Alert.alert(
+        '🎉 Sucesso!',
+        `${response.message}\n\nID: ${response.id}\nTempo estimado: ${response.estimated_response_time}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => loadServices() // Reload services
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error creating service:', error);
+      Alert.alert('Erro', 'Não foi possível criar a solicitação. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = StyleSheet.create({
