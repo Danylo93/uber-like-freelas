@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '../../src/theme/ThemeProvider';
 import { Card } from '../../src/components/ui/Card';
 
 export default function ActivityScreen() {
