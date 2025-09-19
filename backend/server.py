@@ -100,6 +100,10 @@ async def create_service_request(
     request_data["_id"] = request_data["id"]
     
     await database.service_requests.insert_one(request_data)
+    
+    # Broadcast to nearby providers via WebSocket
+    await realtime_service.broadcast_service_request(service_request.dict())
+    
     return service_request
 
 @api_router.get("/services/requests", response_model=List[ServiceRequest])
