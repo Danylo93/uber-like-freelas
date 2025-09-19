@@ -4,14 +4,19 @@ import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface GoogleMapViewProps {
-  initialRegion?: Region;
+  initialRegion?: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  };
   markers?: Array<{
     id: string;
     coordinate: { latitude: number; longitude: number };
     title?: string;
     description?: string;
   }>;
-  onRegionChange?: (region: Region) => void;
+  onRegionChange?: (region: any) => void;
   onMarkerPress?: (markerId: string) => void;
   showUserLocation?: boolean;
   followUserLocation?: boolean;
@@ -28,15 +33,6 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
   style,
 }) => {
   const { theme } = useTheme();
-  
-  const [region, setRegion] = useState<Region>(
-    initialRegion || {
-      latitude: -23.5505,
-      longitude: -46.6333,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }
-  );
   
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
 
@@ -63,247 +59,59 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       });
       
       setUserLocation(location);
-      
-      if (followUserLocation) {
-        const newRegion = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        };
-        setRegion(newRegion);
-      }
     } catch (error) {
       console.error('Error getting location:', error);
     }
   };
 
-  const handleRegionChange = (newRegion: Region) => {
-    setRegion(newRegion);
-    onRegionChange?.(newRegion);
-  };
-
-  const mapStyle = [
-    {
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#242f3e' : '#f5f5f5',
-        },
-      ],
-    },
-    {
-      elementType: 'labels.icon',
-      stylers: [
-        {
-          visibility: 'off',
-        },
-      ],
-    },
-    {
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#616161',
-        },
-      ],
-    },
-    {
-      elementType: 'labels.text.stroke',
-      stylers: [
-        {
-          color: theme.isDark ? '#242f3e' : '#f5f5f5',
-        },
-      ],
-    },
-    {
-      featureType: 'administrative.land_parcel',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#bdbdbd',
-        },
-      ],
-    },
-    {
-      featureType: 'poi',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#2f3948' : '#eeeeee',
-        },
-      ],
-    },
-    {
-      featureType: 'poi',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#757575',
-        },
-      ],
-    },
-    {
-      featureType: 'poi.park',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#263c3f' : '#e5e5e5',
-        },
-      ],
-    },
-    {
-      featureType: 'poi.park',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#9e9e9e',
-        },
-      ],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#38414e' : '#ffffff',
-        },
-      ],
-    },
-    {
-      featureType: 'road.arterial',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#757575',
-        },
-      ],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#746855' : '#dadada',
-        },
-      ],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#616161',
-        },
-      ],
-    },
-    {
-      featureType: 'road.local',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#9e9e9e',
-        },
-      ],
-    },
-    {
-      featureType: 'transit.line',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#2f3948' : '#e5e5e5',
-        },
-      ],
-    },
-    {
-      featureType: 'transit.station',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#3a4762' : '#eeeeee',
-        },
-      ],
-    },
-    {
-      featureType: 'water',
-      elementType: 'geometry',
-      stylers: [
-        {
-          color: theme.isDark ? '#17263c' : '#c9c9c9',
-        },
-      ],
-    },
-    {
-      featureType: 'water',
-      elementType: 'labels.text.fill',
-      stylers: [
-        {
-          color: theme.isDark ? '#e1e2e1' : '#9e9e9e',
-        },
-      ],
-    },
-  ];
-
   const styles = StyleSheet.create({
-    map: {
+    placeholder: {
       flex: 1,
+      backgroundColor: theme.colors.surfaceContainer,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    text: {
+      ...theme.typography.bodyLarge,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      marginBottom: 16,
+    },
+    locationInfo: {
+      ...theme.typography.bodyMedium,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+    },
+    markersInfo: {
+      ...theme.typography.bodyMedium,
+      color: theme.colors.primary,
+      textAlign: 'center',
+      marginTop: 16,
     },
   });
 
-  // For web compatibility, show placeholder
-  if (Platform.OS === 'web') {
-    return (
-      <View style={[styles.map, { 
-        backgroundColor: theme.colors.surfaceContainer,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }, style]}>
-        <Text style={{
-          ...theme.typography.bodyLarge,
-          color: theme.colors.onSurfaceVariant,
-          textAlign: 'center',
-        }}>
-          🗺️{'\n\n'}
-          Mapa Google Maps{'\n'}
-          (Disponível no mobile)
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <MapView
-      style={[styles.map, style]}
-      provider={PROVIDER_GOOGLE}
-      region={region}
-      onRegionChangeComplete={handleRegionChange}
-      showsUserLocation={showUserLocation}
-      showsMyLocationButton={false}
-      customMapStyle={mapStyle}
-      mapType="standard"
-    >
-      {/* User location marker */}
+    <View style={[styles.placeholder, style]}>
+      <Text style={styles.text}>
+        🗺️{'\n\n'}
+        Google Maps View{'\n'}
+        (Implementação futura com solução compatível)
+      </Text>
+      
       {userLocation && (
-        <Marker
-          coordinate={{
-            latitude: userLocation.coords.latitude,
-            longitude: userLocation.coords.longitude,
-          }}
-          title="Sua localização"
-          pinColor={theme.colors.primary}
-        />
+        <Text style={styles.locationInfo}>
+          📍 Localização atual:{'\n'}
+          Lat: {userLocation.coords.latitude.toFixed(4)}{'\n'}
+          Lng: {userLocation.coords.longitude.toFixed(4)}
+        </Text>
       )}
       
-      {/* Custom markers */}
-      {markers.map((marker) => (
-        <Marker
-          key={marker.id}
-          coordinate={marker.coordinate}
-          title={marker.title}
-          description={marker.description}
-          onPress={() => onMarkerPress?.(marker.id)}
-        />
-      ))}
-    </MapView>
+      {markers.length > 0 && (
+        <Text style={styles.markersInfo}>
+          📍 {markers.length} marcadores disponíveis
+        </Text>
+      )}
+    </View>
   );
 };
