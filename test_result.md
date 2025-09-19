@@ -237,11 +237,11 @@
 
   - task: "Login Screen"
     implemented: true
-    working: true
+    working: false
     file: "src/screens/auth/LoginScreen.tsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -258,6 +258,9 @@
       - working: true
         agent: "testing"
         comment: "LOGIN FUNCTIONALITY CONFIRMED WORKING: Comprehensive testing shows authentication is fully functional. ✅ Login form accepts credentials correctly, ✅ Backend authentication successful with JWT token generation, ✅ User data stored in localStorage, ✅ WebSocket connection established after login. Minor: Navigation doesn't auto-redirect after login (requires manual navigation to home screen), but core login functionality is 100% operational. Console shows successful login flow: 'Login response received', 'Auth data stored successfully', 'User state updated, login successful'."
+      - working: false
+        agent: "main"
+        comment: "2024-09-19: After TDD theme integration, login screen loads correctly but login button click doesn't navigate to home screen. Backend confirmed 100% working (test@login.com/TestPassword123! works via API). Issue is in frontend - likely AuthContext not triggering navigation after successful login. Google Directions API configured with real key."
       - working: true
         agent: "testing"
         comment: "FOCUSED LOGIN TEST COMPLETED (SPECIFIC USER REQUEST): Executed targeted test for exact credentials test@login.com / TestPassword123! as requested. RESULTS: 5/5 tests passed (100% success). ✅ API Health Check: Backend running correctly, ✅ User Registration/Login: User exists and login successful with JWT token (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...), ✅ JWT Token Validation: Token allows access to protected endpoint /users/me, ✅ User Profile Access: Returns correct user data (Test User, test@login.com, client role), ✅ Invalid Token Rejection: Properly rejects unauthorized requests. CONCLUSION: Login functionality is 100% operational for the specific user scenario. Backend authentication system working perfectly with proper JWT token generation, validation, and protected endpoint access."
