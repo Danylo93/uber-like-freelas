@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ServiceRequest } from '../../hooks/useRealTimeService';
+import { ServiceStatusTransition } from './ServiceStatusTransition';
 
 interface RealTimeTrackerProps {
   serviceRequest: ServiceRequest;
