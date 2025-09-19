@@ -122,6 +122,41 @@ export default function UberHomeScreen() {
     setPendingServiceRequest(null);
   };
 
+  const handleStartNavigation = async () => {
+    if (!currentMatch || !userLocation) {
+      Alert.alert('Erro', 'Não foi possível iniciar a navegação');
+      return;
+    }
+
+    try {
+      const destination = {
+        latitude: currentMatch.location.latitude,
+        longitude: currentMatch.location.longitude,
+      };
+
+      await getRoute(userLocation, destination);
+      setShowNavigation(true);
+      console.log('🧭 Navigation started to service location');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível calcular a rota');
+    }
+  };
+
+  const handleStopNavigation = () => {
+    clearRoute();
+    setShowNavigation(false);
+    console.log('🛑 Navigation stopped');
+  };
+
+  const handleRecalculateRoute = async () => {
+    try {
+      await recalculateRoute();
+      console.log('🔄 Route recalculated');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível recalcular a rota');
+    }
+  };
+
   // Listen for incoming service requests (providers only)
   useEffect(() => {
     if (user?.role === 'provider' && serviceRequests.length > 0 && !pendingServiceRequest) {
@@ -136,6 +171,13 @@ export default function UberHomeScreen() {
       setShowSearchingAnimation(false);
     }
   }, [currentState]);
+
+  // Update current location for navigation
+  useEffect(() => {
+    if (userLocation && isNavigating) {
+      updateCurrentLocation(userLocation);
+    }
+  }, [userLocation, isNavigating]);
 
   // Check if should show earnings dashboard
   const shouldShowEarningsDashboard = user?.role === 'provider' && showEarningsDashboard;
