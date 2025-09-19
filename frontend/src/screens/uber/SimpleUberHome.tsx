@@ -328,9 +328,27 @@ export default function SimpleUberHome() {
     <View style={styles.bottomSheet}>
       <Text style={styles.title}>Modo Prestador</Text>
       
+      {earnings && (
+        <View style={styles.statsContainer}>
+          <Text style={styles.statsTitle}>📊 Estatísticas</Text>
+          <View style={styles.statsRow}>
+            <Text style={styles.statsLabel}>Serviços concluídos:</Text>
+            <Text style={styles.statsValue}>{earnings.total_services}</Text>
+          </View>
+          <View style={styles.statsRow}>
+            <Text style={styles.statsLabel}>Ganhos totais:</Text>
+            <Text style={styles.statsValue}>R$ {earnings.total_earnings.toFixed(2)}</Text>
+          </View>
+          <View style={styles.statsRow}>
+            <Text style={styles.statsLabel}>Avaliação:</Text>
+            <Text style={styles.statsValue}>{earnings.provider_rating.toFixed(1)} ⭐</Text>
+          </View>
+        </View>
+      )}
+      
       {isOnline && (
         <View style={styles.onlineStatus}>
-          <Text style={styles.onlineText}>🟢 Online - Aguardando solicitações</Text>
+          <Text style={styles.onlineText}>🟢 Online - {nearbyServices.length} solicitações disponíveis</Text>
         </View>
       )}
       
@@ -341,21 +359,35 @@ export default function SimpleUberHome() {
       <TouchableOpacity
         style={[styles.button, isOnline ? styles.warningButton : styles.successButton]}
         onPress={handleToggleOnline}
+        disabled={loading}
       >
         <Text style={styles.buttonText}>
-          {isOnline ? '🔴 Ficar Offline' : '🟢 Ficar Online'}
+          {loading ? '⏳ Atualizando...' : (isOnline ? '🔴 Ficar Offline' : '🟢 Ficar Online')}
         </Text>
       </TouchableOpacity>
 
       {isOnline && (
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#2196F3' }]}
-          onPress={handleNewServiceRequest}
-        >
-          <Text style={styles.buttonText}>
-            🔔 Simular Nova Solicitação
-          </Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: '#2196F3' }]}
+            onPress={handleNewServiceRequest}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              🔔 Ver Solicitações ({nearbyServices.length})
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.button, styles.outlineButton]}
+            onPress={loadProviderData}
+            disabled={loading}
+          >
+            <Text style={[styles.buttonText, styles.outlineButtonText]}>
+              🔄 Atualizar Dados
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
