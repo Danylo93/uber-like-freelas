@@ -10,6 +10,8 @@ from typing import List
 # Import our models and auth
 from models import *
 from auth import *
+from payments import PaymentService
+from payment_routes import router as payment_router, set_payment_service
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -21,6 +23,10 @@ database = client[os.environ['DB_NAME']]
 
 # Set database for auth module
 set_database(database)
+
+# Initialize payment service
+payment_service = PaymentService(database)
+set_payment_service(payment_service)
 
 # Create the main app without a prefix
 app = FastAPI(title="Service Marketplace API", version="1.0.0")
@@ -154,8 +160,26 @@ async def update_location(
     )
     return {"message": "Location updated successfully"}
 
-# Include the router in the main app
+# Webhook route (outside /api prefix for Stripe)
+@app.post("/api/webhook/stripe") 
+async def stripe_webhook_direct(request: Request):
+    """Direct webhook endpoint for Stripe (bypasses /api prefix issue)"""
+    body = await request.body()
+    signature = request.headers.get("Stripe-Signature")
+    base_url = str(request.base_url)
+    
+    if not signature:
+        raise HTTPException(status_code=400, detail="Missing Stripe signature")
+    
+    try:
+        webhook_response = await payment_service.handle_webhook(body, signature, base_url)
+        return {"received": True, "event_id": webhook_response.event_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Include routers
 app.include_router(api_router)
+app.include_router(payment_router)
 
 app.add_middleware(
     CORSMiddleware,
