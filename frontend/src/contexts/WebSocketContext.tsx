@@ -17,14 +17,31 @@ interface WebSocketContextType {
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
-  const wsRef = useRef<WebSocket | null>(null);
-  const messageCallbacksRef = useRef<Array<(message: WebSocketMessage) => void>>([]);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttempts = 5;
+  // Temporariamente desabilitado para evitar erros de conectividade
+  const [isConnected] = useState(false);
+  const [connectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
+
+  const sendMessage = () => {
+    console.log('WebSocket temporariamente desabilitado');
+  };
+
+  const onMessage = () => {
+    return () => {}; // cleanup function
+  };
+
+  const value: WebSocketContextType = {
+    isConnected,
+    sendMessage,
+    onMessage,
+    connectionStatus,
+  };
+
+  return (
+    <WebSocketContext.Provider value={value}>
+      {children}
+    </WebSocketContext.Provider>
+  );
+};
 
   const getWebSocketUrl = () => {
     if (!user) return null;
