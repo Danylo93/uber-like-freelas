@@ -1,8 +1,8 @@
 <analysis>
-The AI engineer successfully progressed the React Native Expo marketplace app, transforming its UI/UX to an Uber-like experience. Initial work involved establishing a Material 3 design, core navigation, and a FastAPI backend with authentication, Stripe, Firebase chat, and Emergent LLM integration. Key challenges included  compatibility,  import errors, and  context issues, all resolved through systematic debugging, cache clearing, and code adjustments. The engineer implemented comprehensive notification and rating systems, refactored chat to use real backend data, and developed various Uber-like UI components and real-time backend services (WebSocket, provider status, nearby search). The project is in an advanced state, with backend fully tested and frontend components created for core functionalities, currently moving towards integrating these into the main screens.
+The AI engineer's work involved developing an Uber-like marketplace app from scratch, covering both frontend (React Native Expo) and backend (FastAPI). Initially, the engineer established core navigation, Material 3 design, authentication, Stripe, Firebase chat, and LLM integration. Key challenges, such as  compatibility and theme context issues, were systematically resolved. The project progressed significantly with the implementation of a comprehensive notification and rating system, refactoring of chat to use real backend data, and creation of various Uber-like UI components and real-time backend services. Recent work focused on integrating these components, Google Directions API, and addressing persistent UI theme errors by re-architecting the frontend with TDD, including Jest setup and a new . The current task involves updating  for the new theme system.
 </analysis>
 <product_requirements>
-The application is a single React Native app for iOS/Android, dynamically adapting based on  or  roles. It must prioritize performance (60fps), accessibility (AA), dark mode, responsive design, and a Google-like Material 3 design. The primary interface is a map with a contextual . Core features include Onboarding, Login/SignUp (Email/Password, Google/Apple), Profile, Settings, Notifications, Chat, and History. Client flows require service request creation, finding/accepting provider offers, tracking, Stripe payment, and rating. Provider flows involve online/offline toggling, receiving/accepting/refusing requests, status updates (A caminho / Cheguei / Em serviço), and service finalization. The app requires empty/loading/error states, map integration (Google Maps/Directions API), Firebase Realtime Database for chat, AI features, and Socket.IO for real-time communication. The overall styling and UX/UI should be Uber-like, with dynamic animations for maps, searching, and status updates, along with a provider earnings dashboard.
+The application is a single React Native app for iOS/Android, dynamically adapting based on  or  roles. It must prioritize performance (60fps), accessibility (AA), dark mode, responsive design, and a Material 3 design. The primary interface is a map with a contextual . Core features include Onboarding, Login/SignUp (Email/Password, Google/Apple), Profile, Settings, Notifications, Chat, and History. Client flows require service request creation, finding/accepting provider offers, tracking, Stripe payment, and rating. Provider flows involve online/offline toggling, receiving/accepting/refusing requests, status updates (A caminho / Cheguei / Em serviço), and service finalization. The app requires empty/loading/error states, map integration (Google Maps/Directions API), Firebase Realtime Database for chat, AI features, and WebSockets (Socket.IO) for real-time communication. The overall styling and UX/UI should be Uber-like, with dynamic animations and a provider earnings dashboard.
 </product_requirements>
 <key_technical_concepts>
 -   **React Native & Expo Router**: Cross-platform mobile development, file-based routing.
@@ -13,113 +13,238 @@ The application is a single React Native app for iOS/Android, dynamically adapti
 -   **Firebase Realtime Database**: Real-time chat, push notifications.
 -   **Emergent LLM Key**: AI features.
 -   **WebSockets (Socket.IO)**: Real-time communication for service tracking.
+-   **Google Directions API**: Real-time route tracing and navigation.
+-   **Jest & React Native Testing Library**: Frontend unit testing (TDD).
 </key_technical_concepts>
 <code_architecture>
 The application employs a monorepo structure with  (FastAPI) and  (React Native Expo) directories.
 
 
--   : The main FastAPI app, now includes , , and WebSocket endpoints from .
--   : Handles API routes for creating and retrieving service reviews, including a fix for .
--   : Contains logic for push notifications and API routes to manage tokens and send notifications.
--   : New module for WebSocket communication, handling connections, and broadcasting service requests/updates.
--   : Root layout, now includes  for real-time capabilities.
--   : Main entry point, updated to handle authentication-based redirection using .
--   : Centralized API service. Corrected URL concatenation (removed double ) and added generic HTTP methods (, , , ).
--   : Manages user authentication state. Fixed error handling during login and potentially a timing issue for web redirection.
--   : Refactored to remove mocked data and integrate with real backend chat APIs, also fixed  import path.
--   , : Updated to be more robust, preventing  undefined errors by ensuring theme context availability.
--   : New context to manage WebSocket connections and messages for real-time features.
--   : Updated to integrate with the backend push notification services.
--   : New hook to manage rating logic in the frontend.
--   : New hook to consume real-time service updates via WebSockets.
--   : New hook to manage service tracking states.
--   : Primary home screen, significantly refactored to an Uber-like interface, incorporating , , and updated  content. Text Para onde vamos? changed to Que serviço você precisa?.
--   , : Modified to act as placeholders after  was removed.
--   : New component for a cross-platform map solution.
--   , : New UI components for the rating system.
--   : New Uber-like search bar component, with corrected text Que serviço você precisa? and layout adjustments.
--   : Modified/new component for an interactive bottom sheet.
--   : New component for tracking service status in real-time.
--   : New component for providers to toggle their online/offline status.
--   : New component for displaying search animations for providers.
--   : New modal component for provider service requests.
--   : New component for real-time tracking display.
--   : New component for providers to view their earnings.
--   : New component for displaying service categories.
--   : New component for dynamic price estimations.
--   : New component for instant feedback.
+-   : Main FastAPI app, includes reviews, notifications, and WebSockets.
+-   : Handles API for creating/retrieving service reviews.
+-   : Logic for push notifications.
+-   : WebSocket communication for real-time features.
+-   : Root layout, now uses  and updated to new .
+-   : Fixed theme access using null-safe operators.
+-   : Main entry point, updated for auth redirection, currently being updated to use new .
+-   : Centralized API service.
+-   : Manages user authentication state, login logic verified.
+-   : Refactored to use real backend data.
+-   : New context for WebSocket connections.
+-   : Primary home screen, significantly refactored to an Uber-like interface, incorporating new components, real-time logic, and Google Directions API integration.
+-   : New component for cross-platform map, integrated animated markers, routes, and turn-by-turn navigation.
+-   : New service for Google Directions API.
+-   : New hook to integrate with Google Directions.
+-   : New component for turn-by-turn navigation UI.
+-   , , : Fixed theme access errors by using null-safe operators and fallback values.
+-   , , : New files for Jest-based TDD setup and testing the new .
+-   , , : New, robust theme system components for TDD.
 </code_architecture>
 <pending_tasks>
--   Integrate Google Directions API for real-time route tracing.
--   Fully integrate and animate service status transitions (using  and ).
--   Integrate , , ,  into  and other relevant screens.
--   Implement dynamic map animations (e.g., provider moving smoothly, animated routes).
+-   Complete the re-architecture of the frontend with TDD by updating  to use the new .
+-   Continue implementing unit tests for other parts of the application as part of the TDD approach.
+-   Further refine UI/UX enhancements and advanced functionalities (e.g., promotions, micro-interactions) under the TDD structure.
 </pending_tasks>
 <current_work>
-The AI engineer is currently focusing on completing the Uber-like UI/UX refinement and integrating real-time functionalities. This involves creating various frontend components and backend services. The latest backend work includes a robust WebSocket system, provider online/offline status, and nearby provider search, all thoroughly tested (48/49 tests approved). On the frontend, new components such as , , , and  have just been created. The immediate next step is to integrate these newly created components into the main application screens, specifically starting with , to build out the client and provider flows as per the Uber-like UX design.
+The AI engineer is currently in the process of a major frontend re-architecture following a Test-Driven Development (TDD) approach, specifically to address persistent theme-related bugs. This involves:
+1.  **Setting up Jest**: A  file has been created, and necessary test dependencies have been installed using yarn install v1.22.22
+info No lockfile found.
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved lockfile.
+Done in 0.10s..
+2.  **Creating Test Infrastructure**: A  file for test setup was created.
+3.  **Developing a Robust Theme System**: A completely new  and accompanying  and  files have been created. Unit tests for  () were also created to ensure its correctness.
+4.  **Integrating New Theme Provider**: The root layout  has been updated to use the new .
+The immediate next action is to continue this integration by updating  to also utilize the new .
+Responda tudo em portugues e :
+Objetivo:
+Validar todo o código já implementado (app + API) e implementar apenas o que falta. Não reescrever do zero. Manter o mesmo app para cliente e prestador, diferenciando por role. Garantir mapa com animações, rota/directions, tempo estimado, e tempo real (Socket.IO).
 
-continue falando em portugues:
+1) Auditoria rápida do projeto (sem refator total)
 
-Valide todo o código já implementado do app mobile e da API.
-Não simplifique nem refatore tudo do zero: aproveite o que já está feito, corrija inconsistências e implemente apenas o que ainda falta.
+ Mapear pastas/chaves principais: contexts/, screens/, components/, services/, utils/, API routes/, controllers/, sockets/.
 
-Regras
+ Conferir .env e utils/config (EXPO_PUBLIC_API_URL, SOCKET_URL, PROVIDERS_API_URL, REQUESTS_API_URL, Stripe key opcional).
 
-Garanta que o mesmo app funcione para cliente e prestador, diferenciando apenas pelo role.
+ Verificar Expo + React Native + expo-location + mapas + socket.io-client.
 
-Valide e ajuste as funcionalidades já feitas, corrigindo bugs e inconsistências.
+ Não apagar funcionalidades já presentes; só corrigir e integrar.
 
-Implemente apenas o que ainda falta para completar o fluxo.
+ Documentar, em comentário, o que já está ok e o que falta por item deste checklist.
 
-Não retire funcionalidades já existentes — apenas melhore, padronize e integre.
+2) Diferenciação por perfil (mesmo app)
 
-Fluxo do Cliente
+ Garantir que login/registro retorna user_type/role (cliente=2, prestador=1).
 
-Login/Registro
+ Rotas/estado condicionais pelo role (mesmo bundle, telas adaptadas).
 
-Mapa inicial mostrando localização atual
+ Proteger telas/ações com role correto.
 
-Escolher serviço → confirmar pedido (endereço + descrição)
+3) Fluxo do Cliente (validar e completar)
 
-Buscando prestadores → animação dinâmica estilo Uber
+ Home: mapa centrado na localização (permissão + estado).
 
-Prestador aceitou → cliente recebe oferta (preço, tempo estimado, rota até o local)
+ Escolha de serviço: categorias, descrição, valor estimado.
 
-Acompanhamento em tempo real no mapa (Google Directions API + Socket.IO)
+ Criar solicitação → status pending/searching.
 
-Serviço em andamento → animações/status card atualizando
+ Busca de prestadores: bottom sheet + animação (loading progress).
 
-Serviço concluído → tela de feedback/avaliação
+ Oferta/aceite do prestador: exibir nome, preço, ETA, distância, botão aceitar/recusar (se o fluxo suportar).
 
-Fluxo do Prestador
+ Acompanhar no mapa: rota Directions (Google Directions API), marker do prestador animado, ETA/distance atualizando em tempo real via Socket.IO.
 
-Login/Registro
+ Status card: accepted → in_progress → near_client → started → completed.
 
-Botão Online/Offline no mapa
+ Conclusão: modal de feedback/avaliação (1–5 + comentário).
 
-Receber solicitações com notificação animada (som + modal/bottom sheet)
+ (Opcional) Pagamento: startPayment(amount, { request_id }) integrado onde já existe.
 
-Aceitar ou recusar solicitação
+Aceite técnico:
 
-Se aceitou → rota traçada até cliente (Google Directions API)
+ Direção e polilinha desenhadas; ETA/distância atualizando.
 
-Alterar status: chegou → em andamento → concluído
+ Marker do prestador interpolado (animação suave entre posições).
 
-Dashboard de ganhos (diário/semanal) e histórico de serviços
+ Socket events atualizam UI sem refresh manual.
 
-Interações e UX/UI
+4) Fluxo do Prestador (validar e completar)
 
-Mapa central com animações dinâmicas de markers (ex: prestador se movendo suavemente, rota animada).
+ Toggle Online/Offline no mapa (bloquear se houver serviço ativo).
 
-BottomSheets interativos que mudam conforme o status da corrida/serviço.
+ Receber notificação de nova solicitação (socket) com bottom sheet animado: aceitar/recusar.
 
-Animações de transição suaves (abrir modal, atualizar status, feedback).
+ Ao aceitar: atualizar status para accepted, traçar rota ao cliente (Directions).
 
-Comunicação real time entre cliente e prestador (Socket.IO).
+ Botões de status: estou a caminho (→ in_progress), cheguei (→ near_client), iniciar serviço (→ started), concluir (→ completed).
 
-👉 Resumindo: valide todo o código já feito e implemente apenas as partes que faltam, seguindo fielmente o fluxo acima com interações, animações e real time estilo Uber.
-lembrando que é mobile
+ Dashboard simples: ganhos hoje/semana + histórico (se já existir, validar).
+
+ Envio periódico da localização do prestador (watchPosition) + emissão para o cliente via API/Socket.
+
+Aceite técnico:
+
+ Status sincroniza via API/Socket, refletindo no cliente.
+
+ Rota/ETA no prestador também funciona.
+
+ Online/Offline respeita serviço em andamento.
+
+5) Mapa + Animações estilo Uber (obrigatório)
+
+ Interpolação do marker do prestador (Animated + easing) entre pontos.
+
+ Polyline de rota do Directions (com atualização quando muda origem/destino).
+
+ ETA e distância exibidos e atualizados.
+
+ Re-center suave quando prestador se move ou status muda.
+
+ Performance: evitar re-render desnecessário; memos/useCallback onde preciso.
+
+6) Tempo real (Socket.IO)
+
+ Reusar SocketProvider existente; consertar reconexões e listeners duplicados.
+
+ Eventos padronizados (ex.: request.offered, request.accepted, request.status_changed, provider.location).
+
+ No cliente: atualizar currentRequest, assignedProvider, ETA/distância ao receber eventos.
+
+ No prestador: ouvir new_request, mudanças de status do cliente se aplicável.
+
+ Evitar “tempestade” de requests (throttle/debounce em updates de localização).
+
+7) API/Backend (não reescrever do zero; validar e completar)
+
+ Endpoints existentes: /auth, /providers, /requests (CRUD e actions: accept, status update, client-accept/client-decline quando aplicável).
+
+ Sockets no backend emitindo eventos consistentes (nomenclatura única).
+
+ Atualização de localização do prestador (PUT /providers/:id/location) + broadcast.
+
+ Regras de status: impedir transições inválidas (ex.: concluir sem ter começado).
+
+ Query para requests do cliente e pedidos atribuídos ao prestador.
+
+ CORS/ngrok headers ok.
+
+ Logs claros; mensagens de erro padronizadas.
+
+Aceite técnico:
+
+ Cliente e prestador recebem eventos certos no tempo certo.
+
+ Requests não “somem”; polling reduzido ou desativado quando socket funciona.
+
+ Todas transições retornam 200/4xx consistentes.
+
+8) UX/UI (evidente e consistente)
+
+ Bottom sheets para cada etapa (busca, oferta, em rota, em serviço, concluído).
+
+ Botões fixos (FABs) e tab bar colada ao rodapé (safe-area/safe-bottom resolvido).
+
+ Estados vazios, carregando e erro bem apresentados.
+
+ Acessibilidade mínima: toques grandes, contraste ok.
+
+ Tipografia e cores consistentes (tema).
+
+ Ícones/feedbacks (toasts/in-app notifications) sem excesso.
+
+9) Qualidade e confiabilidade
+
+ Tratar permissões de localização (denegada, revogada).
+
+ Retry/timeout/backoff para chamadas críticas (login, criar request, aceitar).
+
+ Guardar token/usuário em AsyncStorage; restaurar sessão.
+
+ Evitar múltiplas chamadas concorrentes (flags isRequesting).
+
+ Limpeza de watchers/listeners ao desmontar.
+
+10) Entregáveis (sem reescrever tudo)
+
+ Commits incrementais com mensagens “VALIDAÇÃO X/ IMPLEMENTAÇÃO Y”.
+
+ Comentários nos arquivos alterados: “// VALIDADO”, “// AJUSTE”, “// IMPLEMENTADO”.
+
+ Lista final (markdown) com o que foi validado, corrigido e implementado por item do checklist.
+
+ Scripts de teste manual (passo a passo) para:
+
+Cliente: solicitar serviço → ver matching → acompanhar → concluir → avaliar.
+
+Prestador: ficar online → receber pedido → aceitar → alterar status → concluir.
+
+Movimentação real-time + rota/ETA (dois dispositivos).
+
+Restrições
+
+Não reescrever o app/API do zero.
+
+Não remover funcionalidades existentes; padronize e integre.
+
+Priorizar compatibilidade com Expo + React Native + Socket.IO + Google Directions API.
+
+Usar as libs já presentes; só adicionar dependências se for indispensável.
+
+Resumo para você (Cursor):
+
+Valide o que já está feito, marcando cada item como OK/Ajustado.
+
+Implemente só o que falta para fechar o fluxo completo (cliente e prestador).
+
+Garanta mapa com rota, ETA, markers animados e tempo real.
+
+Entregue uma lista final do que foi validado/ajustado/implementado + scripts de teste manual.
+
+O ChatGPT pode cometer erros. Considere verificar informações importantes.
 </current_work>
 <optional_next_step>
-Update  to integrate , , , and .
+Update  to use the new .
 </optional_next_step>
