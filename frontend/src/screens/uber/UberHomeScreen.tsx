@@ -467,7 +467,7 @@ export default function UberHomeScreen() {
         showUserLocation={true}
       />
 
-      <SearchBar
+      <UberSearchBar
         onPress={handleSearchPress}
         placeholder="Para onde vamos?"
         address={serviceAddress}
