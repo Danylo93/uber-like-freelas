@@ -1051,6 +1051,8 @@ class BackendTester:
         self.review_id = None
         self.client_push_token = None
         self.provider_push_token = None
+        self.chat_id = None
+        self.message_id = None
         
         # Core API tests
         self.test_health_check()
