@@ -390,6 +390,7 @@ export default function UberHomeScreen() {
                 onCallProvider={() => Alert.alert('Ligar', 'Funcionalidade em desenvolvimento')}
                 onChatProvider={() => Alert.alert('Chat', 'Funcionalidade em desenvolvimento')}
                 onCancelService={cancelService}
+                onStartNavigation={handleStartNavigation}
               />
             )}
           </View>
@@ -403,6 +404,7 @@ export default function UberHomeScreen() {
                 serviceRequest={currentMatch}
                 onCallProvider={() => Alert.alert('Ligar', 'Funcionalidade em desenvolvimento')}
                 onChatProvider={() => Alert.alert('Chat', 'Funcionalidade em desenvolvimento')}
+                onStartNavigation={handleStartNavigation}
               />
             )}
           </View>
