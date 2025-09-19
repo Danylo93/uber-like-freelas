@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any, List
 from datetime import datetime
-from models import User, ServiceRequest, ServiceStatus, ProviderStatus
+from models import User, ServiceRequest, ServiceStatus
 from auth import get_current_user
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from notification_service import NotificationService
