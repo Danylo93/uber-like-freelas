@@ -12,6 +12,8 @@ from models import *
 from auth import *
 from payments import PaymentService
 from payment_routes import router as payment_router, set_payment_service
+from ai_service import AIService
+from ai_routes import router as ai_router, set_ai_service
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -24,9 +26,12 @@ database = client[os.environ['DB_NAME']]
 # Set database for auth module
 set_database(database)
 
-# Initialize payment service
+# Initialize services
 payment_service = PaymentService(database)
 set_payment_service(payment_service)
+
+ai_service = AIService(database)
+set_ai_service(ai_service)
 
 # Create the main app without a prefix
 app = FastAPI(title="Service Marketplace API", version="1.0.0")
@@ -37,7 +42,7 @@ api_router = APIRouter(prefix="/api")
 # Health check
 @api_router.get("/")
 async def root():
-    return {"message": "Service Marketplace API", "status": "running"}
+    return {"message": "Service Marketplace API", "status": "running", "features": ["payments", "ai", "chat"]}
 
 # Authentication routes
 @api_router.post("/auth/register", response_model=TokenResponse)
@@ -180,6 +185,7 @@ async def stripe_webhook_direct(request: Request):
 # Include routers
 app.include_router(api_router)
 app.include_router(payment_router)
+app.include_router(ai_router)
 
 app.add_middleware(
     CORSMiddleware,
