@@ -21,28 +21,34 @@ export const Card: React.FC<CardProps> = ({
 
   const getCardStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      borderRadius: theme.borderRadius.medium,
-      padding: theme.spacing[padding],
+      borderRadius: theme?.borderRadius?.medium || theme?.borderRadius?.md || 12,
+      padding: theme?.spacing?.[padding] || theme?.spacing?.md || 16,
     };
 
     switch (variant) {
       case 'elevated':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.surface,
-          ...theme.elevation.level1,
+          backgroundColor: theme?.colors?.surface || '#FFFFFF',
+          ...(theme?.elevation?.level1 || {
+            shadowColor: theme?.colors?.shadow || '#000000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2,
+          }),
         };
       case 'filled':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.surfaceContainer,
+          backgroundColor: theme?.colors?.surfaceContainer || theme?.colors?.surfaceVariant || '#F3F3F3',
         };
       case 'outlined':
         return {
           ...baseStyle,
-          backgroundColor: theme.colors.surface,
+          backgroundColor: theme?.colors?.surface || '#FFFFFF',
           borderWidth: 1,
-          borderColor: theme.colors.outlineVariant,
+          borderColor: theme?.colors?.outlineVariant || theme?.colors?.outline || '#79747E',
         };
       default:
         return baseStyle;
