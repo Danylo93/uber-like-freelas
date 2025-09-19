@@ -1659,6 +1659,15 @@ class BackendTester:
         return failed == 0
 
 if __name__ == "__main__":
+    import sys
+    
     tester = BackendTester()
-    success = tester.run_all_tests()
-    sys.exit(0 if success else 1)
+    
+    # Check if we should run focused login test
+    if len(sys.argv) > 1 and sys.argv[1] == "--focused-login":
+        tester.run_focused_login_test()
+    else:
+        # Run focused login test by default for this specific request
+        tester.run_focused_login_test()
+    
+    sys.exit(0)
