@@ -43,10 +43,12 @@ export const UberSearchBar: React.FC<UberSearchBarProps> = ({
   const styles = StyleSheet.create({
     container: {
       position: 'absolute',
-      top: Platform.OS === 'ios' ? 60 : 40,
+      top: Platform.OS === 'ios' ? 70 : 50,
       left: 16,
       right: 16,
       zIndex: 1000,
+      maxWidth: 500, // Prevent stretching on larger screens
+      alignSelf: 'center',
     },
     searchCard: {
       backgroundColor: colors.surface,
