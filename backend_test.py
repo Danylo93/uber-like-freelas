@@ -2219,8 +2219,11 @@ if __name__ == "__main__":
     # Check if we should run focused login test
     if len(sys.argv) > 1 and sys.argv[1] == "--focused-login":
         tester.run_focused_login_test()
+    elif len(sys.argv) > 1 and sys.argv[1] == "--service-actions":
+        # Run comprehensive new service actions tests
+        tester.run_new_service_actions_tests()
     else:
-        # Run focused login test by default for this specific request
-        tester.run_focused_login_test()
+        # Run new service actions tests by default for this specific request
+        tester.run_new_service_actions_tests()
     
     sys.exit(0)
