@@ -120,7 +120,7 @@ async def accept_service_request(
     if not service:
         raise HTTPException(status_code=404, detail="Service request not found")
     
-    if service["status"] != ServiceStatus.PENDING:
+    if service["status"] != ServiceStatus.REQUESTED:
         raise HTTPException(status_code=400, detail="Service is no longer available")
     
     # Update service request
