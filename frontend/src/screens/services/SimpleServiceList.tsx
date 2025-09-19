@@ -67,45 +67,41 @@ export default function SimpleServiceList() {
     }
   };
 
-  const handleServicePress = (service) => {
+  const handleServicePress = async (service) => {
     const isProvider = user?.role === 'provider';
     
     if (isProvider) {
       // Provider actions
-      if (service.status === 'Disponível') {
+      if (service.status === 'Disponível' || !service.status) {
         Alert.alert(
           'Aceitar Solicitação',
-          `Cliente: ${service.clientName}\nServiço: ${service.title}\nLocal: ${service.location}\nValor: ${service.price}\n\nDeseja aceitar esta solicitação?`,
+          `Cliente: ${service.client_name || service.title}\nServiço: ${service.title}\nLocal: ${service.location?.address || service.location}\nValor: R$ ${service.budget || service.price}\n\nDeseja aceitar esta solicitação?`,
           [
             { text: 'Cancelar', style: 'cancel' },
             { 
               text: 'Aceitar', 
-              onPress: () => {
-                setServices(prev => prev.map(s => 
-                  s.id === service.id ? { ...s, status: 'Em andamento' } : s
-                ));
-                Alert.alert('✅ Sucesso', 'Solicitação aceita! O cliente foi notificado.');
+              onPress: async () => {
+                try {
+                  setLoading(true);
+                  const response = await serviceActionsAPI.acceptServiceRequest(service.id);
+                  
+                  Alert.alert('✅ Sucesso', response.message);
+                  
+                  // Remove from list and reload
+                  setServices(prev => prev.filter(s => s.id !== service.id));
+                  await loadServices();
+                } catch (error) {
+                  console.error('Error accepting service:', error);
+                  Alert.alert('Erro', 'Não foi possível aceitar a solicitação.');
+                } finally {
+                  setLoading(false);
+                }
               }
             }
           ]
         );
-      } else if (service.status === 'Em andamento') {
-        Alert.alert(
-          'Gerenciar Serviço',
-          `${service.title} - ${service.clientName}`,
-          [
-            { text: 'Cancelar', style: 'cancel' },
-            { text: 'Ligar para Cliente', onPress: () => Alert.alert('📞', 'Funcionalidade de ligação em desenvolvimento') },
-            { text: '✅ Marcar Concluído', onPress: () => {
-              setServices(prev => prev.map(s => 
-                s.id === service.id ? { ...s, status: 'Concluído' } : s
-              ));
-              Alert.alert('🎉 Parabéns!', 'Serviço marcado como concluído. Aguarde a avaliação do cliente.');
-            }}
-          ]
-        );
       } else {
-        Alert.alert('Serviço Concluído', `${service.title} foi finalizado em ${service.location}`);
+        Alert.alert('Serviço Indisponível', 'Este serviço não está mais disponível para aceitação.');
       }
     } else {
       // Client actions
