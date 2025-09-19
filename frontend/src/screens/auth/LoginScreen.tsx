@@ -41,6 +41,8 @@ export const LoginScreen: React.FC = () => {
 
     try {
       await login(email, password);
+      // After successful login, navigate to home
+      router.replace('/(main)/home');
     } catch (error) {
       Alert.alert('Erro', 'Email ou senha incorretos');
     }
