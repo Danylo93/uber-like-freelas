@@ -18,7 +18,7 @@ interface UberSearchBarProps {
 
 export const UberSearchBar: React.FC<UberSearchBarProps> = ({
   onPress,
-  placeholder = "Para onde?",
+  placeholder = "Que serviço você precisa?",
   address,
   style,
 }) => {
