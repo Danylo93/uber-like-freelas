@@ -22,7 +22,23 @@ export const UberSearchBar: React.FC<UberSearchBarProps> = ({
   address,
   style,
 }) => {
-  const { colors, typography } = useTheme();
+  const themeContext = useTheme();
+  
+  // Fallback colors in case theme context is not available
+  const colors = themeContext?.colors || {
+    surface: '#FFFFFF',
+    surfaceVariant: '#F3F3F3',
+    onSurface: '#1C1B1F',
+    onSurfaceVariant: '#49454F',
+    primary: '#6750A4',
+    secondary: '#625B71',
+    outline: '#79747E',
+  };
+  
+  const typography = themeContext?.typography || {
+    titleMedium: { fontSize: 16, fontWeight: '600' },
+    bodyMedium: { fontSize: 14 },
+  };
 
   const styles = StyleSheet.create({
     container: {
