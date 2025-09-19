@@ -129,20 +129,17 @@ export const useNotifications = (): UseNotificationsReturn => {
     }
 
     try {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Teste de Notificação! 🎉",
-          body: 'Esta é uma notificação de teste do seu marketplace de serviços.',
-          data: { 
-            type: 'test',
-            timestamp: new Date().toISOString(),
-          },
-        },
-        trigger: { seconds: 1 },
-      });
+      setIsLoading(true);
+      setError(null);
+      
+      // Send test notification through backend
+      await apiService.post('/notifications/test');
+      console.log('✅ Test notification sent via backend');
     } catch (err) {
-      console.error('Error sending test notification:', err);
+      console.error('❌ Error sending test notification:', err);
       setError('Erro ao enviar notificação de teste');
+    } finally {
+      setIsLoading(false);
     }
   };
 
