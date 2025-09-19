@@ -81,12 +81,12 @@ async def create_service_request(
         title=request_data["title"],
         description=request_data["description"],
         category=request_data["category"],
-        budget=request_data.get("budget", 0),
         location={
             "latitude": request_data.get("latitude", -23.5505),
-            "longitude": request_data.get("longitude", -46.6333),
-            "address": request_data.get("address", "São Paulo, SP")
+            "longitude": request_data.get("longitude", -46.6333)
         },
+        address=request_data.get("address", "São Paulo, SP"),
+        budget_range={"min": request_data.get("budget", 0), "max": request_data.get("budget", 0)},
         status=ServiceStatus.REQUESTED
     )
     
