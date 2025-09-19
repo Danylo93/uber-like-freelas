@@ -252,8 +252,9 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
     controls: {
       position: 'absolute',
       right: 20,
-      bottom: 100,
+      bottom: 180, // Moved up to avoid bottom sheet overlap
       gap: 12,
+      zIndex: 500,
     },
     controlButton: {
       width: 48,
