@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 
 // Loading component for lazy loading
 const LazyLoadingComponent: React.FC = () => {
