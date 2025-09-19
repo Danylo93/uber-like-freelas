@@ -80,30 +80,82 @@ export default function SimpleUberHome() {
   };
 
   // Provider actions
-  const handleToggleOnline = () => {
-    setIsOnline(!isOnline);
-    Alert.alert(
-      'Status atualizado',
-      `Agora você está ${!isOnline ? 'online e pode receber solicitações' : 'offline'}`,
-      [{ text: 'OK' }]
-    );
+  const handleToggleOnline = async () => {
+    try {
+      setLoading(true);
+      const response = await serviceActionsAPI.toggleProviderStatus();
+      setIsOnline(response.status === 'online');
+      
+      Alert.alert(
+        'Status atualizado',
+        response.message,
+        [{ text: 'OK' }]
+      );
+      
+      // Reload nearby services if going online
+      if (response.status === 'online') {
+        await loadProviderData();
+      }
+    } catch (error) {
+      console.error('Error toggling status:', error);
+      Alert.alert('Erro', 'Não foi possível alterar o status. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleNewServiceRequest = () => {
-    if (isOnline) {
+  const handleAcceptService = async (serviceId: string, serviceData: any) => {
+    try {
+      setLoading(true);
+      const response = await serviceActionsAPI.acceptServiceRequest(serviceId);
+      
       Alert.alert(
-        'Nova Solicitação!',
-        '🔔 Você recebeu uma nova solicitação de serviço!\n\nServiço: Limpeza Residencial\nCliente: Maria Silva\nLocal: Vila Madalena\nValor: R$ 80,00\n\nDeseja aceitar?',
+        '✅ Solicitação Aceita!',
+        response.message,
         [
-          { text: 'Recusar', style: 'cancel' },
-          { 
-            text: 'Aceitar', 
+          {
+            text: 'OK',
             onPress: () => {
-              Alert.alert('✅ Solicitação Aceita!', 'Cliente notificado. Você pode iniciar o trabalho!');
+              // Update local state
+              setNearbyServices(prev => prev.filter(s => s.id !== serviceId));
+              // Set current state to in_progress
+              setCurrentState('in_progress');
+              setSelectedProvider({
+                name: user?.name || 'Você',
+                service: serviceData.title,
+                client: serviceData.client_name,
+                price: serviceData.budget
+              });
             }
           }
         ]
       );
+    } catch (error) {
+      console.error('Error accepting service:', error);
+      Alert.alert('Erro', 'Não foi possível aceitar a solicitação.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNewServiceRequest = () => {
+    if (isOnline && nearbyServices.length > 0) {
+      const service = nearbyServices[0]; // Show first available service
+      Alert.alert(
+        'Nova Solicitação!',
+        `🔔 Solicitação de serviço disponível!\n\nServiço: ${service.title}\nCliente: ${service.client_name}\nLocal: ${service.location?.address || 'Não informado'}\nValor: R$ ${service.budget || 0},00\n\nDeseja aceitar?`,
+        [
+          { text: 'Recusar', style: 'cancel' },
+          { 
+            text: 'Aceitar', 
+            onPress: () => handleAcceptService(service.id, service)
+          }
+        ]
+      );
+    } else if (isOnline) {
+      Alert.alert('Aguardando', 'Nenhuma solicitação disponível no momento. Aguarde novos pedidos.');
+    } else {
+      Alert.alert('Offline', 'Você precisa estar online para receber solicitações.');
     }
   };
 
