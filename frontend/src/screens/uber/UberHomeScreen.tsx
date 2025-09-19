@@ -469,7 +469,7 @@ export default function UberHomeScreen() {
 
       <UberSearchBar
         onPress={handleSearchPress}
-        placeholder="Para onde vamos?"
+        placeholder="Que serviço você precisa?"
         address={serviceAddress}
       />
 
