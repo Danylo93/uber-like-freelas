@@ -1786,13 +1786,25 @@ class BackendTester:
         return False
     
     def test_get_provider_earnings_client_forbidden(self):
-        """Test that clients cannot get provider earnings"""
-        if not self.auth_token:
-            self.log_result("Get Provider Earnings (Client Forbidden)", False, "Client auth token not available")
-            return False
-        
+        """Test that clients cannot get provider earnings (before role switch)"""
+        # Create a new client user to test this properly
         try:
-            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            # Register a new client user
+            client_data = {
+                "email": f"client_only_{uuid.uuid4().hex[:8]}@example.com",
+                "name": "Client Only User",
+                "role": "client",
+                "phone": "+5511777777777",
+                "password": "ClientPass123!"
+            }
+            
+            response = self.session.post(f"{self.base_url}/auth/register", json=client_data)
+            if response.status_code != 200:
+                self.log_result("Get Provider Earnings (Client Forbidden)", False, "Failed to create client-only user")
+                return False
+            
+            client_token = response.json()["access_token"]
+            headers = {"Authorization": f"Bearer {client_token}"}
             response = self.session.get(f"{self.base_url}/providers/earnings", headers=headers)
             
             if response.status_code == 403:
