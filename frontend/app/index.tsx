@@ -22,7 +22,7 @@ export default function Index() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme?.colors?.background || '#FFFFFF',
       alignItems: 'center',
       justifyContent: 'center',
     },
