@@ -18,6 +18,9 @@ export default function SimpleUberHome() {
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nearbyServices, setNearbyServices] = useState([]);
+  const [earnings, setEarnings] = useState(null);
   
   // Service form states
   const [serviceTitle, setServiceTitle] = useState('');
