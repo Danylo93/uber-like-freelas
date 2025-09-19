@@ -186,6 +186,9 @@ async def create_review(
     # Determine reviewee (who is being reviewed)
     reviewee_id = service_request.get("provider_id") if current_user.id == service_request.get("client_id") else service_request.get("client_id")
     
+    if not reviewee_id:
+        raise HTTPException(status_code=400, detail="Service must have both client and provider to create reviews")
+    
     # Check if review already exists
     existing_review = await database.reviews.find_one({
         "service_request_id": review_create.service_request_id,
