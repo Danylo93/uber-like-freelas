@@ -277,7 +277,7 @@ async def get_nearby_services(
     # Find pending service requests within radius
     # For now, we'll return all pending services (geographic filtering can be implemented later)
     services = await database.service_requests.find({
-        "status": ServiceStatus.PENDING
+        "status": ServiceStatus.REQUESTED
     }).to_list(20)
     
     # Format response
