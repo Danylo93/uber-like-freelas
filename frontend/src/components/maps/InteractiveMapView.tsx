@@ -272,7 +272,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
     locationButton: {
       position: 'absolute',
       right: 20,
-      bottom: 40,
+      bottom: 120, // Moved up to avoid bottom sheet overlap
       width: 48,
       height: 48,
       borderRadius: 24,
@@ -284,6 +284,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
       shadowOpacity: 0.2,
       shadowRadius: 4,
       elevation: 4,
+      zIndex: 500,
     },
     markerContainer: {
       position: 'absolute',
