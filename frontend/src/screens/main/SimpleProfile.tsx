@@ -29,6 +29,7 @@ export default function SimpleProfile() {
   };
 
   const handleRoleSwitch = async () => {
+    console.log('🔄 Role switch button pressed');
     Alert.alert(
       'Trocar Perfil',
       `Deseja trocar para ${user?.role === 'client' ? 'Prestador' : 'Cliente'}?`,
@@ -39,33 +40,35 @@ export default function SimpleProfile() {
           onPress: async () => {
             try {
               setLoading(true);
-              const response = await serviceActionsAPI.switchUserRole();
+              console.log('🔄 Calling API to switch role...');
               
+              const response = await serviceActionsAPI.switchUserRole();
+              console.log('🔄 API response:', response);
+              
+              // Show success message first
               Alert.alert(
                 'Sucesso!',
-                response.message,
+                `${response.message}\n\nReinicie o app ou navegue entre as telas para ver a mudança.`,
                 [
                   {
                     text: 'OK',
                     onPress: async () => {
-                      // Refresh user data to get updated role
                       try {
+                        console.log('🔄 Refreshing user data...');
                         if (refreshUser) {
                           await refreshUser();
+                          console.log('🔄 User data refreshed successfully');
                         }
-                        // Force a re-render by updating local state
-                        Alert.alert('Sucesso!', 'Perfil alterado com sucesso! A interface será atualizada.');
                       } catch (error) {
-                        console.error('Error refreshing user:', error);
-                        Alert.alert('Aviso', 'Perfil alterado, mas pode ser necessário fazer login novamente.');
+                        console.error('🔄 Error refreshing user:', error);
                       }
                     }
                   }
                 ]
               );
             } catch (error) {
-              console.error('Error switching role:', error);
-              Alert.alert('Erro', 'Não foi possível trocar o perfil. Tente novamente.');
+              console.error('🔄 Error switching role:', error);
+              Alert.alert('Erro', `Não foi possível trocar o perfil: ${error.message}`);
             } finally {
               setLoading(false);
             }
