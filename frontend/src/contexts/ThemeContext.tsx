@@ -239,15 +239,27 @@ export const useTheme = (): ThemeContextType => {
       theme: lightTheme,
       isDark: false,
       themeMode: 'light',
-      setThemeMode: () => {},
-      toggleTheme: () => {},
+      setThemeMode: () => {
+        console.warn('ThemeProvider not found. Cannot change theme mode.');
+      },
+      toggleTheme: () => {
+        console.warn('ThemeProvider not found. Cannot toggle theme.');
+      },
       performanceMode: false,
-      setPerformanceMode: () => {},
+      setPerformanceMode: () => {
+        console.warn('ThemeProvider not found. Cannot change performance mode.');
+      },
       reducedMotion: false,
-      setReducedMotion: () => {},
+      setReducedMotion: () => {
+        console.warn('ThemeProvider not found. Cannot change reduced motion.');
+      },
       customColors: {},
-      setCustomColors: () => {},
-      resetCustomColors: () => {},
+      setCustomColors: () => {
+        console.warn('ThemeProvider not found. Cannot set custom colors.');
+      },
+      resetCustomColors: () => {
+        console.warn('ThemeProvider not found. Cannot reset custom colors.');
+      },
     };
   }
   return context;
