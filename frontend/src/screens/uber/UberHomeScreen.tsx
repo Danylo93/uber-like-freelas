@@ -134,16 +134,6 @@ export default function UberHomeScreen() {
     });
   };
 
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [serviceTitle, setServiceTitle] = useState('');
-  const [serviceDescription, setServiceDescription] = useState('');
-  const [serviceAddress, setServiceAddress] = useState('');
-  const [showServiceForm, setShowServiceForm] = useState(false);
-  const [showSearchingAnimation, setShowSearchingAnimation] = useState(false);
-  const [pendingServiceRequest, setPendingServiceRequest] = useState(null);
-  const [showEarningsDashboard, setShowEarningsDashboard] = useState(false);
-  const [showNavigation, setShowNavigation] = useState(false);
-
   const serviceCategories = [
     { id: 'limpeza', label: 'Limpeza', icon: '🧹' },
     { id: 'jardinagem', label: 'Jardinagem', icon: '🌱' },
