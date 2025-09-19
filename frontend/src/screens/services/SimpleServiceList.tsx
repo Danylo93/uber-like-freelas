@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, A
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
+import { serviceActionsAPI, NearbyService } from '../../services/serviceActions';
 
 export default function SimpleServiceList() {
   const themeContext = useTheme();
