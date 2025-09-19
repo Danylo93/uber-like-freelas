@@ -55,7 +55,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    console.warn('useTheme must be used within a ThemeProvider, using fallback theme');
+    // Return fallback theme instead of throwing error
+    return {
+      theme: lightTheme,
+      themeMode: 'light',
+      setThemeMode: () => {},
+      toggleTheme: () => {},
+    };
   }
   return context;
 };
