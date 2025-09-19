@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useServices } from '../../contexts/ServicesContext';
 import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
 import { Card } from '../../components/ui/Card';
@@ -21,6 +23,7 @@ const serviceCategories = [
 export default function ServiceRequestScreen() {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { createServiceRequest } = useServices();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -33,6 +36,7 @@ export default function ServiceRequestScreen() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -61,11 +65,48 @@ export default function ServiceRequestScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const getCurrentLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        return { latitude: -23.5505, longitude: -46.6333 }; // Default to São Paulo
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      return {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+    } catch (error) {
+      console.error('Error getting location:', error);
+      return { latitude: -23.5505, longitude: -46.6333 }; // Default to São Paulo
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     try {
-      // TODO: Send to backend
+      setIsSubmitting(true);
+      
+      const location = await getCurrentLocation();
+      
+      const requestData = {
+        category: formData.category,
+        title: formData.title,
+        description: formData.description,
+        location,
+        address: formData.address,
+        ...(formData.budgetMin || formData.budgetMax ? {
+          budget_range: {
+            min: formData.budgetMin ? parseFloat(formData.budgetMin) : 0,
+            max: formData.budgetMax ? parseFloat(formData.budgetMax) : 0,
+          }
+        } : {})
+      };
+
+      await createServiceRequest(requestData);
+      
       Alert.alert(
         'Solicitação criada!',
         'Sua solicitação foi enviada. Você receberá ofertas em breve.',
@@ -74,7 +115,10 @@ export default function ServiceRequestScreen() {
         ]
       );
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível criar a solicitação.');
+      console.error('Error creating service request:', error);
+      Alert.alert('Erro', 'Não foi possível criar a solicitação. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
