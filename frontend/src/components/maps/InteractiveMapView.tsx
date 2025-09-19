@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Platform,
+  Animated,
   Alert,
 } from 'react-native';
-import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { AnimatedMapMarker } from '../uber/AnimatedMapMarker';
+import { AnimatedRoute } from '../uber/AnimatedRoute';
 
 interface MapMarker {
   id: string;
@@ -18,35 +18,42 @@ interface MapMarker {
     latitude: number;
     longitude: number;
   };
-  title?: string;
+  title: string;
   subtitle?: string;
-  type?: 'user' | 'provider' | 'destination';
+  type: 'user' | 'provider' | 'service_location';
   price?: number;
 }
 
 interface InteractiveMapViewProps {
-  markers: MapMarker[];
-  userLocation?: Location.LocationObject | null;
+  userLocation?: {
+    latitude: number;
+    longitude: number;
+  };
+  markers?: MapMarker[];
+  route?: Array<{ latitude: number; longitude: number }>;
   onMarkerPress?: (markerId: string) => void;
-  onMapPress?: (coordinate: { latitude: number; longitude: number }) => void;
-  style?: any;
   showUserLocation?: boolean;
+  animated?: boolean;
+  style?: any;
 }
 
-const { width, height } = Dimensions.get('window');
-
 export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
-  markers = [],
   userLocation,
+  markers = [],
+  route = [],
   onMarkerPress,
-  onMapPress,
-  style,
   showUserLocation = true,
+  animated = true,
+  style,
 }) => {
   const themeContext = useTheme();
-  
-  // Fallback colors in case theme context is not available
-  const colors = themeContext?.colors || {
+  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [mapCenter, setMapCenter] = useState(userLocation || { latitude: -23.5505, longitude: -46.6333 });
+  const zoomAnim = useRef(new Animated.Value(1)).current;
+  const panAnim = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+
+  const colors = themeContext?.theme?.colors || {
     surface: '#FFFFFF',
     surfaceVariant: '#F3F3F3',
     onSurface: '#1C1B1F',
@@ -54,166 +61,272 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
     primary: '#6750A4',
     secondary: '#625B71',
     outline: '#79747E',
-    error: '#BA1A1A',
   };
-  
-  const typography = themeContext?.typography || {
-    bodyLarge: { fontSize: 16 },
+
+  const typography = themeContext?.theme?.typography || {
+    titleMedium: { fontSize: 16, fontWeight: '600' },
     bodyMedium: { fontSize: 14 },
     bodySmall: { fontSize: 12 },
-    titleSmall: { fontSize: 14, fontWeight: '600' },
   };
-  const [mapCenter, setMapCenter] = useState({
-    latitude: userLocation?.coords.latitude || -23.5505,
-    longitude: userLocation?.coords.longitude || -46.6333,
-  });
-  const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
-    if (userLocation) {
-      setMapCenter({
-        latitude: userLocation.coords.latitude,
-        longitude: userLocation.coords.longitude,
-      });
+    if (userLocation && userLocation !== mapCenter) {
+      setMapCenter(userLocation);
     }
   }, [userLocation]);
 
-  const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
+  const handleMarkerPress = (markerId: string) => {
+    setSelectedMarkerId(markerId);
+    onMarkerPress?.(markerId);
+    
+    // Animate zoom to marker
+    Animated.spring(zoomAnim, {
+      toValue: 1.5,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleZoomIn = () => {
+    const newZoom = Math.min(zoomLevel * 1.5, 3);
+    setZoomLevel(newZoom);
+    Animated.spring(zoomAnim, {
+      toValue: newZoom,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleZoomOut = () => {
+    const newZoom = Math.max(zoomLevel / 1.5, 0.5);
+    setZoomLevel(newZoom);
+    Animated.spring(zoomAnim, {
+      toValue: newZoom,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleRecenterMap = () => {
+    if (userLocation) {
+      setMapCenter(userLocation);
+      setZoomLevel(1);
+      setSelectedMarkerId(null);
       
-      if (status !== 'granted') {
-        Alert.alert(
-          'Permissão de localização',
-          'Precisamos da sua localização para mostrar no mapa'
-        );
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-      
-      setMapCenter({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-    } catch (error) {
-      console.error('Error getting location:', error);
-      Alert.alert('Erro', 'Não foi possível obter sua localização');
+      Animated.parallel([
+        Animated.spring(zoomAnim, {
+          toValue: 1,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.spring(panAnim, {
+          toValue: { x: 0, y: 0 },
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   };
 
-  const zoomIn = () => {
-    setZoomLevel(prev => Math.min(prev * 1.5, 5));
-  };
+  const renderMapOverlay = () => (
+    <View style={styles.mapOverlay}>
+      <Text style={styles.mapTitle}>Mapa Interativo</Text>
+      <Text style={styles.mapSubtitle}>
+        {userLocation 
+          ? `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}`
+          : 'Localização não disponível'
+        }
+      </Text>
+    </View>
+  );
 
-  const zoomOut = () => {
-    setZoomLevel(prev => Math.max(prev / 1.5, 0.5));
-  };
+  const renderMarkers = () => {
+    let allMarkers = [...markers];
 
-  const getMarkerPosition = (marker: MapMarker) => {
-    // Convert lat/lng to screen coordinates (simplified)
-    const latDiff = marker.coordinate.latitude - mapCenter.latitude;
-    const lngDiff = marker.coordinate.longitude - mapCenter.longitude;
-    
-    const x = (width / 2) + (lngDiff * zoomLevel * 1000);
-    const y = (height / 2) - (latDiff * zoomLevel * 1000);
-    
-    return { x, y };
-  };
-
-  const handleMapPress = (event: any) => {
-    if (onMapPress) {
-      // Convert screen coordinates back to lat/lng (simplified)
-      const { locationX, locationY } = event.nativeEvent;
-      const latDiff = (height / 2 - locationY) / (zoomLevel * 1000);
-      const lngDiff = (locationX - width / 2) / (zoomLevel * 1000);
-      
-      onMapPress({
-        latitude: mapCenter.latitude + latDiff,
-        longitude: mapCenter.longitude + lngDiff,
+    // Add user location marker if enabled
+    if (showUserLocation && userLocation) {
+      allMarkers.unshift({
+        id: 'user-location',
+        coordinate: userLocation,
+        title: 'Sua Localização',
+        subtitle: 'Você está aqui',
+        type: 'user' as const,
       });
     }
-  };
 
-  const renderMarker = (marker: MapMarker) => {
-    const position = getMarkerPosition(marker);
-    
-    // Only render if within screen bounds
-    if (position.x < -50 || position.x > width + 50 || 
-        position.y < -50 || position.y > height + 50) {
-      return null;
-    }
-
-    let markerContent;
-    
-    switch (marker.type) {
-      case 'user':
-        markerContent = (
-          <View style={[styles.userMarker, { backgroundColor: colors.primary }]}>
-            <Ionicons name="person" size={16} color="white" />
-          </View>
-        );
-        break;
-      case 'provider':
-        markerContent = (
-          <View style={[styles.providerMarker, { backgroundColor: colors.secondary }]}>
-            <Text style={[styles.markerText, { color: colors.onSecondary }]}>
-              {marker.price ? `R$${marker.price}` : '🚗'}
-            </Text>
-          </View>
-        );
-        break;
-      case 'destination':
-        markerContent = (
-          <View style={[styles.destinationMarker, { backgroundColor: colors.error }]}>
-            <Ionicons name="location" size={16} color="white" />
-          </View>
-        );
-        break;
-      default:
-        markerContent = (
-          <View style={[styles.defaultMarker, { backgroundColor: colors.outline }]}>
-            <Ionicons name="location-outline" size={16} color="white" />
-          </View>
-        );
-    }
-
-    return (
-      <TouchableOpacity
+    return allMarkers.map((marker) => (
+      <AnimatedMapMarker
         key={marker.id}
-        style={[
-          styles.markerContainer,
-          {
-            left: position.x - 20,
-            top: position.y - 20,
-          },
-        ]}
-        onPress={() => onMarkerPress?.(marker.id)}
+        coordinate={marker.coordinate}
+        title={marker.title}
+        subtitle={marker.subtitle}
+        type={marker.type}
+        isSelected={selectedMarkerId === marker.id}
+        onPress={() => handleMarkerPress(marker.id)}
+        style={styles.marker}
+      />
+    ));
+  };
+
+  const renderZoomControls = () => (
+    <View style={styles.zoomControls}>
+      <TouchableOpacity
+        style={styles.zoomButton}
+        onPress={handleZoomIn}
         activeOpacity={0.7}
       >
-        {markerContent}
-        {marker.title && (
-          <View style={[styles.markerTooltip, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.tooltipText, { color: colors.onSurface }]}>
-              {marker.title}
-            </Text>
-          </View>
-        )}
+        <Ionicons name="add" size={24} color={colors.onSurface} />
       </TouchableOpacity>
-    );
-  };
+      
+      <TouchableOpacity
+        style={styles.zoomButton}
+        onPress={handleZoomOut}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="remove" size={24} color={colors.onSurface} />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderLocationButton = () => (
+    <TouchableOpacity
+      style={styles.locationButton}
+      onPress={handleRecenterMap}
+      activeOpacity={0.7}
+    >
+      <Ionicons name="locate" size={24} color={colors.primary} />
+    </TouchableOpacity>
+  );
+
+  const renderMapStats = () => (
+    <View style={styles.mapStats}>
+      <View style={styles.statItem}>
+        <Ionicons name="location" size={16} color={colors.primary} />
+        <Text style={styles.statText}>{markers.length} Marcadores</Text>
+      </View>
+      
+      <View style={styles.statItem}>
+        <Ionicons name="expand" size={16} color={colors.secondary} />
+        <Text style={styles.statText}>Zoom: {zoomLevel.toFixed(1)}x</Text>
+      </View>
+      
+      {route.length > 0 && (
+        <View style={styles.statItem}>
+          <Ionicons name="trending-up" size={16} color={colors.secondary} />
+          <Text style={styles.statText}>Rota: {route.length} pontos</Text>
+        </View>
+      )}
+    </View>
+  );
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 16,
+      overflow: 'hidden',
       position: 'relative',
     },
-    mapArea: {
+    mapContainer: {
       flex: 1,
-      backgroundColor: colors.surfaceVariant,
-      position: 'relative',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface,
+    },
+    mapOverlay: {
+      position: 'absolute',
+      top: 20,
+      left: 20,
+      right: 20,
+      backgroundColor: colors.surface + 'F0',
+      borderRadius: 12,
+      padding: 16,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    mapTitle: {
+      ...typography.titleMedium,
+      color: colors.onSurface,
+      marginBottom: 4,
+    },
+    mapSubtitle: {
+      ...typography.bodySmall,
+      color: colors.onSurfaceVariant,
+      fontFamily: 'monospace',
+    },
+    marker: {
+      position: 'absolute',
+      zIndex: 10,
+    },
+    zoomControls: {
+      position: 'absolute',
+      right: 20,
+      top: '50%',
+      marginTop: -50,
+    },
+    zoomButton: {
+      width: 48,
+      height: 48,
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    locationButton: {
+      position: 'absolute',
+      right: 20,
+      bottom: 80,
+      width: 56,
+      height: 56,
+      backgroundColor: colors.surface,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    mapStats: {
+      position: 'absolute',
+      bottom: 20,
+      left: 20,
+      right: 20,
+      backgroundColor: colors.surface + 'F0',
+      borderRadius: 12,
+      padding: 12,
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    statItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    statText: {
+      ...typography.bodySmall,
+      color: colors.onSurfaceVariant,
+      marginLeft: 4,
+      fontWeight: '500',
     },
     gridPattern: {
       position: 'absolute',
@@ -223,220 +336,71 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
       bottom: 0,
       opacity: 0.1,
     },
-    mapInfo: {
-      position: 'absolute',
-      top: 120, // Moved down to avoid overlap with search bar
-      left: 20,
-      right: 20,
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
-      zIndex: 500, // Lower than search bar
-    },
-    infoText: {
-      ...typography.bodyMedium,
-      color: colors.onSurface,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    coordinatesText: {
-      ...typography.bodySmall,
-      color: colors.onSurfaceVariant,
-      textAlign: 'center',
-    },
-    controls: {
-      position: 'absolute',
-      right: 20,
-      bottom: 180, // Moved up to avoid bottom sheet overlap
-      gap: 12,
-      zIndex: 500,
-    },
-    controlButton: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: colors.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-    locationButton: {
-      position: 'absolute',
-      right: 20,
-      bottom: 120, // Moved up to avoid bottom sheet overlap
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: colors.secondary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-      zIndex: 500,
-    },
-    markerContainer: {
-      position: 'absolute',
-      width: 40,
-      height: 40,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    userMarker: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 3,
-      borderColor: 'white',
-    },
-    providerMarker: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 2,
-      borderColor: 'white',
-    },
-    destinationMarker: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 3,
-      borderColor: 'white',
-    },
-    defaultMarker: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 2,
-      borderColor: 'white',
-    },
-    markerText: {
-      fontSize: 10,
-      fontWeight: 'bold',
-    },
-    markerTooltip: {
-      position: 'absolute',
-      top: -35,
-      left: -30,
-      right: -30,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 6,
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.2,
-      shadowRadius: 2,
-      elevation: 2,
-    },
-    tooltipText: {
-      fontSize: 12,
-      fontWeight: '500',
-    },
-    statusBar: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: colors.surface,
-      padding: 16,
-      borderTopWidth: 1,
-      borderTopColor: colors.outline,
-    },
-    statusText: {
-      ...typography.bodySmall,
-      color: colors.onSurfaceVariant,
-      textAlign: 'center',
-    },
   });
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity
-        style={styles.mapArea}
-        onPress={handleMapPress}
-        activeOpacity={1}
+      <Animated.View
+        style={[
+          styles.mapContainer,
+          {
+            transform: [
+              { scale: zoomAnim },
+              { translateX: panAnim.x },
+              { translateY: panAnim.y },
+            ],
+          },
+        ]}
       >
-        {/* Map background with grid pattern */}
-        <View style={styles.gridPattern} />
-        
-        {/* Map info panel */}
-        <View style={styles.mapInfo}>
-          <Text style={styles.infoText}>
-            🗺️ Mapa Interativo (Versão Alternativa)
-          </Text>
-          <Text style={styles.coordinatesText}>
-            Lat: {mapCenter.latitude.toFixed(4)}, Lng: {mapCenter.longitude.toFixed(4)}
-          </Text>
-          <Text style={styles.coordinatesText}>
-            Zoom: {zoomLevel.toFixed(1)}x
-          </Text>
+        {/* Grid pattern background */}
+        <View style={styles.gridPattern}>
+          {Array.from({ length: 20 }, (_, i) => (
+            <View
+              key={`grid-h-${i}`}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: i * 40,
+                height: 1,
+                backgroundColor: colors.outline,
+              }}
+            />
+          ))}
+          {Array.from({ length: 15 }, (_, i) => (
+            <View
+              key={`grid-v-${i}`}
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: i * 40,
+                width: 1,
+                backgroundColor: colors.outline,
+              }}
+            />
+          ))}
         </View>
 
-        {/* Render markers */}
-        {markers.map(renderMarker)}
-        
-        {/* Render user location marker */}
-        {showUserLocation && userLocation && (
-          <View
-            style={[
-              styles.markerContainer,
-              {
-                left: width / 2 - 20,
-                top: height / 2 - 20,
-              },
-            ]}
-          >
-            <View style={[styles.userMarker, { backgroundColor: colors.primary }]}>
-              <Ionicons name="person" size={16} color="white" />
-            </View>
-          </View>
+        {/* Animated route */}
+        {route.length > 1 && (
+          <AnimatedRoute
+            route={route}
+            isActive={true}
+            animated={animated}
+            color={colors.primary}
+            width={4}
+          />
         )}
-      </TouchableOpacity>
 
-      {/* Map controls */}
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.controlButton} onPress={zoomIn}>
-          <Ionicons name="add" size={24} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.controlButton} onPress={zoomOut}>
-          <Ionicons name="remove" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
+        {/* Animated markers */}
+        {renderMarkers()}
+      </Animated.View>
 
-      {/* Get location button */}
-      <TouchableOpacity style={styles.locationButton} onPress={getCurrentLocation}>
-        <Ionicons name="locate" size={24} color="white" />
-      </TouchableOpacity>
-
-      {/* Status bar */}
-      <View style={styles.statusBar}>
-        <Text style={styles.statusText}>
-          {markers.length > 0 
-            ? `${markers.length} marcadores • Toque para interagir`
-            : 'Nenhum marcador • Mapa pronto para uso'
-          }
-        </Text>
-      </View>
+      {renderMapOverlay()}
+      {renderZoomControls()}
+      {renderLocationButton()}
+      {renderMapStats()}
     </View>
   );
 };
