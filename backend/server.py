@@ -40,6 +40,10 @@ set_ai_service(ai_service)
 notification_service = NotificationService(database)
 realtime_service = RealTimeService(database)
 
+# Set up service actions
+service_actions.set_database(database)
+service_actions.set_notification_service(notification_service)
+
 # Create the main app without a prefix
 app = FastAPI(title="Service Marketplace API", version="1.0.0")
 
