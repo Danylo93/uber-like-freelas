@@ -29,7 +29,17 @@ export const UberBottomSheet: React.FC<UberBottomSheetProps> = ({
   onSnapChange,
   style,
 }) => {
-  const { colors } = useTheme();
+  const themeContext = useTheme();
+  
+  // Fallback colors in case theme context is not available
+  const colors = themeContext?.colors || {
+    surface: '#FFFFFF',
+    surfaceVariant: '#F3F3F3',
+    onSurface: '#1C1B1F',
+    onSurfaceVariant: '#49454F',
+    primary: '#6750A4',
+    outline: '#79747E',
+  };
   const [currentSnap, setCurrentSnap] = useState(initialSnap);
   const translateY = useRef(new Animated.Value(screenHeight - snapPoints[initialSnap])).current;
   const lastGestureY = useRef(0);
