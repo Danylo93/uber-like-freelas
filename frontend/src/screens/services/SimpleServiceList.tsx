@@ -57,11 +57,14 @@ export default function SimpleServiceList() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await loadServices();
       Alert.alert('✅ Atualizado', 'Lista de serviços atualizada com sucesso!');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível atualizar a lista.');
+    } finally {
       setRefreshing(false);
-    }, 1000);
+    }
   };
 
   const handleServicePress = (service) => {
