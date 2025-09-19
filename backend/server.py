@@ -15,6 +15,8 @@ from payment_routes import router as payment_router, set_payment_service
 from ai_service import AIService
 from ai_routes import router as ai_router, set_ai_service
 from notification_service import NotificationService
+from realtime_service import RealTimeService
+from fastapi import WebSocket, WebSocketDisconnect
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
