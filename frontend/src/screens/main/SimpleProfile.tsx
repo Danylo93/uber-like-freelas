@@ -170,9 +170,8 @@ export default function SimpleProfile() {
           style={[styles.menuItem, styles.switchItem]} 
           onPress={() => {
             console.log('🔧 BUTTON PRESSED - Role switch button clicked!');
-            Alert.alert('Teste', 'Botão foi clicado!', [
-              { text: 'OK', onPress: () => handleRoleSwitch() }
-            ]);
+            // Pular o Alert de teste e ir direto para o handleRoleSwitch
+            handleRoleSwitch();
           }} 
           disabled={loading}
         >
