@@ -58,57 +58,43 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      // In a real app, this would call a backend API to get user's chats
-      // For now, we'll get chats based on service requests
-      const serviceRequests = await apiService.getServiceRequests();
-      const offers = await apiService.getOffers();
+      // Get chats from backend
+      const response = await apiService.get('/chats');
+      const backendChats = response.data || [];
       
-      const chatMap = new Map<string, Chat>();
+      // Transform backend data to match our interface
+      const transformedChats: Chat[] = backendChats.map((chat: any) => ({
+        id: chat.id,
+        participants: chat.participants,
+        serviceRequestId: chat.service_request_id,
+        unreadCount: 0, // TODO: Calculate unread count
+        participantNames: {
+          [user.id]: user.name,
+          // Get other participant name from backend data
+          ...Object.fromEntries(
+            chat.participants
+              .filter((id: string) => id !== user.id)
+              .map((id: string) => [id, chat.participant_name || 'Usuário'])
+          )
+        },
+        lastMessage: chat.last_message ? {
+          id: chat.last_message.id,
+          senderId: chat.last_message.sender_id,
+          receiverId: chat.last_message.receiver_id || '',
+          content: chat.last_message.content,
+          timestamp: new Date(chat.last_message.created_at),
+          read: !!chat.last_message.read_at,
+          type: chat.last_message.message_type as 'text' | 'image' | 'location',
+          serviceRequestId: chat.last_message.service_request_id,
+        } : undefined,
+      }));
 
-      // Create chats from service requests (for clients)
-      if (user.role === 'client') {
-        serviceRequests.forEach(request => {
-          if (request.provider_id) {
-            const chatId = `service_${request.id}`;
-            chatMap.set(chatId, {
-              id: chatId,
-              participants: [user.id, request.provider_id],
-              serviceRequestId: request.id,
-              unreadCount: 0,
-              participantNames: {
-                [user.id]: user.name,
-                [request.provider_id]: 'Prestador', // Would get real name from API
-              },
-            });
-          }
-        });
-      }
-
-      // Create chats from offers (for providers)
-      if (user.role === 'provider') {
-        offers.forEach(offer => {
-          // Get the service request to find the client
-          const request = serviceRequests.find(r => r.id === offer.service_request_id);
-          if (request) {
-            const chatId = `service_${request.id}`;
-            chatMap.set(chatId, {
-              id: chatId,
-              participants: [user.id, request.client_id],
-              serviceRequestId: request.id,
-              unreadCount: 0,
-              participantNames: {
-                [user.id]: user.name,
-                [request.client_id]: 'Cliente', // Would get real name from API
-              },
-            });
-          }
-        });
-      }
-
-      setChats(Array.from(chatMap.values()));
+      setChats(transformedChats);
       
     } catch (error) {
       console.error('Error refreshing chats:', error);
+      // Fallback to empty array on error
+      setChats([]);
     } finally {
       setIsLoading(false);
     }
