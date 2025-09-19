@@ -147,6 +147,25 @@ export default function SimpleProfile() {
           </TouchableOpacity>
         ))}
 
+        {/* BOTÃO DE TESTE SIMPLES */}
+        <TouchableOpacity 
+          style={{ 
+            backgroundColor: 'red', 
+            padding: 20, 
+            margin: 10, 
+            borderRadius: 10,
+            zIndex: 1000
+          }}
+          onPress={() => {
+            console.log('🚨 BOTÃO VERMELHO CLICADO!');
+            Alert.alert('FUNCIONOU!', 'O botão vermelho funciona!');
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 18, textAlign: 'center' }}>
+            🚨 TESTE CLIQUE AQUI
+          </Text>
+        </TouchableOpacity>
+
         <TouchableOpacity 
           style={[styles.menuItem, styles.switchItem]} 
           onPress={() => {
