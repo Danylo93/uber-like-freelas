@@ -43,7 +43,26 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
   style,
   showUserLocation = true,
 }) => {
-  const { colors, typography } = useTheme();
+  const themeContext = useTheme();
+  
+  // Fallback colors in case theme context is not available
+  const colors = themeContext?.colors || {
+    surface: '#FFFFFF',
+    surfaceVariant: '#F3F3F3',
+    onSurface: '#1C1B1F',
+    onSurfaceVariant: '#49454F',
+    primary: '#6750A4',
+    secondary: '#625B71',
+    outline: '#79747E',
+    error: '#BA1A1A',
+  };
+  
+  const typography = themeContext?.typography || {
+    bodyLarge: { fontSize: 16 },
+    bodyMedium: { fontSize: 14 },
+    bodySmall: { fontSize: 12 },
+    titleSmall: { fontSize: 14, fontWeight: '600' },
+  };
   const [mapCenter, setMapCenter] = useState({
     latitude: userLocation?.coords.latitude || -23.5505,
     longitude: userLocation?.coords.longitude || -46.6333,
