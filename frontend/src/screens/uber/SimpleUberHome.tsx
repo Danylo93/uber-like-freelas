@@ -463,7 +463,7 @@ export default function SimpleUberHome() {
           <Text style={styles.buttonText}>🛠️ Solicitar Serviço</Text>
         </TouchableOpacity>
         <Text style={styles.status}>
-          🔌 Backend: {isConnected ? '🟢 Conectado' : '🔴 Desconectado'}
+          🔥 Firebase: {firebase.isConnected ? '🟢 Conectado' : firebase.isInitializing ? '🟡 Inicializando' : '🔴 Configurando'}
         </Text>
       </View>
     );
