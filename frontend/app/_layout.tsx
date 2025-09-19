@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '../src/contexts/ThemeContext';
 import { AuthProvider } from '../src/contexts/AuthContext';
 import { ServicesProvider } from '../src/contexts/ServicesContext';
+import { ChatProvider } from '../src/contexts/ChatContext';
 
 const queryClient = new QueryClient();
 
@@ -16,12 +17,14 @@ export default function RootLayout() {
         <ThemeProvider>
           <AuthProvider>
             <ServicesProvider>
-              <StatusBar style="auto" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                }}
-              />
+              <ChatProvider>
+                <StatusBar style="auto" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                  }}
+                />
+              </ChatProvider>
             </ServicesProvider>
           </AuthProvider>
         </ThemeProvider>
