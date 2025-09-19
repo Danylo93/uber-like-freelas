@@ -19,9 +19,8 @@ export default function RootLayout() {
         <ThemeProvider>
           <AuthProvider>
             <WebSocketProvider>
-              <ServicesProvider>
+              <MatchingProvider>
                 <ChatProvider>
-                  <MatchingProvider>
                     <StatusBar style="auto" />
                     <Stack
                       screenOptions={{
