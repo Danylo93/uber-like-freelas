@@ -83,7 +83,27 @@ export default function SimpleProfile() {
     dangerItem: { backgroundColor: '#FFEBEE' },
     dangerText: { color: '#C62828' },
     switchItem: { backgroundColor: '#E8F5E8' },
-    switchText: { color: '#2E7D32' }
+    switchText: { color: '#2E7D32' },
+    
+    // Current role info
+    currentRoleInfo: { 
+      backgroundColor: theme.colors.surfaceVariant, 
+      padding: 16, 
+      borderRadius: 12, 
+      marginTop: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: theme.colors.primary
+    },
+    currentRoleText: { 
+      fontSize: 16, 
+      fontWeight: 'bold', 
+      color: theme.colors.onSurface,
+      marginBottom: 4 
+    },
+    currentRoleSubtext: { 
+      fontSize: 14, 
+      color: theme.colors.onSurfaceVariant 
+    }
   });
 
   const isProvider = user?.role === 'provider';
