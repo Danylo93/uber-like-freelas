@@ -97,11 +97,10 @@ export const useNotifications = (): UseNotificationsReturn => {
       // Send token to backend for this user
       if (user && token.data) {
         try {
-          // In a real app, you'd have an endpoint to save push tokens
-          // await apiService.savePushToken(token.data);
-          console.log('Push token for user', user.id, ':', token.data);
+          await apiService.post('/notifications/token', { push_token: token.data });
+          console.log('✅ Push token saved for user', user.id);
         } catch (err) {
-          console.error('Error saving push token:', err);
+          console.error('❌ Error saving push token:', err);
         }
       }
 
