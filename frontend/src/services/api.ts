@@ -6,8 +6,9 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    // API_URL already includes /api path in production
-    this.baseUrl = API_URL.includes('/api') ? API_URL : `${API_URL}/api`;
+    // For mobile app, we need to add /api to the backend URL
+    this.baseUrl = `${API_URL}/api`;
+    console.log('🔗 API Service initialized with baseUrl:', this.baseUrl);
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
