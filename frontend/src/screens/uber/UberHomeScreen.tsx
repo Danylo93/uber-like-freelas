@@ -127,6 +127,44 @@ export default function UberHomeScreen() {
   const shouldShowEarningsDashboard = user?.role === 'provider' && showEarningsDashboard;
 
   const getBottomSheetContent = () => {
+    // Show earnings dashboard for providers when requested
+    if (shouldShowEarningsDashboard) {
+      return <EarningsDashboard style={{ flex: 1 }} />;
+    }
+
+    // Provider-specific UI
+    if (user?.role === 'provider') {
+      return (
+        <View style={styles.sheetContent}>
+          <ProviderStatusToggle />
+          
+          {!isProviderOnline ? (
+            <View style={styles.offlineMessage}>
+              <Text style={styles.sheetTitle}>Você está Offline</Text>
+              <Text style={styles.sheetSubtitle}>
+                Ative seu status para começar a receber solicitações de serviços
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.onlineMessage}>
+              <Text style={styles.sheetTitle}>Pronto para receber solicitações!</Text>
+              <Text style={styles.sheetSubtitle}>
+                Você está online e disponível para receber serviços
+              </Text>
+              
+              <Button
+                title="Ver Ganhos"
+                onPress={() => setShowEarningsDashboard(true)}
+                variant="outlined"
+                style={styles.earningsButton}
+              />
+            </View>
+          )}
+        </View>
+      );
+    }
+
+    // Client-specific UI based on current state
     switch (currentState) {
       case 'idle':
         return (
@@ -290,43 +328,27 @@ export default function UberHomeScreen() {
       case 'confirmed':
         return (
           <View style={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>Serviço Confirmado!</Text>
-            <Text style={styles.sheetSubtitle}>
-              {selectedProvider?.name} está a caminho
-            </Text>
-            
-            <View style={styles.statusCard}>
-              <Text style={styles.statusText}>Tempo estimado: {selectedProvider?.estimatedTime} min</Text>
-              <Text style={styles.statusText}>Distância: {selectedProvider?.distance.toFixed(1)} km</Text>
-            </View>
-
-            <Button
-              title="Cancelar Serviço"
-              onPress={cancelService}
-              variant="outlined"
-              style={styles.cancelButton}
-            />
+            {currentMatch && (
+              <RealTimeTracker
+                serviceRequest={currentMatch}
+                onCallProvider={() => Alert.alert('Ligar', 'Funcionalidade em desenvolvimento')}
+                onChatProvider={() => Alert.alert('Chat', 'Funcionalidade em desenvolvimento')}
+                onCancelService={cancelService}
+              />
+            )}
           </View>
         );
 
       case 'in_progress':
         return (
           <View style={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>Serviço em Andamento</Text>
-            <Text style={styles.sheetSubtitle}>
-              {selectedProvider?.name} está realizando o serviço
-            </Text>
-            
-            <View style={styles.statusCard}>
-              <Text style={styles.statusText}>📞 Contato: {selectedProvider?.phone}</Text>
-              <Text style={styles.statusText}>💰 Valor: R$ {currentMatch?.estimatedPrice}</Text>
-            </View>
-
-            <Button
-              title="Finalizar Serviço"
-              onPress={completeService}
-              style={styles.primaryButton}
-            />
+            {currentMatch && (
+              <RealTimeTracker
+                serviceRequest={currentMatch}
+                onCallProvider={() => Alert.alert('Ligar', 'Funcionalidade em desenvolvimento')}
+                onChatProvider={() => Alert.alert('Chat', 'Funcionalidade em desenvolvimento')}
+              />
+            )}
           </View>
         );
 
