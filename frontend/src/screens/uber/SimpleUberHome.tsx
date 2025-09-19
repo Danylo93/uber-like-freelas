@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
+import { RatingModal } from '../../components/ui/RatingModal';
 
 export default function SimpleUberHome() {
   const themeContext = useTheme();
@@ -14,6 +15,7 @@ export default function SimpleUberHome() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [currentState, setCurrentState] = useState<'idle' | 'searching' | 'provider_found' | 'in_progress' | 'completed'>('idle');
   const [showServiceForm, setShowServiceForm] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   
   // Service form states
@@ -65,6 +67,24 @@ export default function SimpleUberHome() {
       `Agora você está ${!isOnline ? 'online e pode receber solicitações' : 'offline'}`,
       [{ text: 'OK' }]
     );
+  };
+
+  const handleNewServiceRequest = () => {
+    if (isOnline) {
+      Alert.alert(
+        'Nova Solicitação!',
+        '🔔 Você recebeu uma nova solicitação de serviço!\n\nServiço: Limpeza Residencial\nCliente: Maria Silva\nLocal: Vila Madalena\nValor: R$ 80,00\n\nDeseja aceitar?',
+        [
+          { text: 'Recusar', style: 'cancel' },
+          { 
+            text: 'Aceitar', 
+            onPress: () => {
+              Alert.alert('✅ Solicitação Aceita!', 'Cliente notificado. Você pode iniciar o trabalho!');
+            }
+          }
+        ]
+      );
+    }
   };
 
   // Client actions
@@ -156,17 +176,22 @@ export default function SimpleUberHome() {
 
   const handleCompleteService = () => {
     setCurrentState('completed');
+    setShowRatingModal(true);
+  };
+
+  const handleRatingSubmit = (rating: number, comment: string) => {
     Alert.alert(
-      'Serviço Concluído!',
-      'Como foi sua experiência? Avalie o prestador:',
-      [
-        { text: 'Avaliar depois', onPress: () => setCurrentState('idle') },
-        { text: 'Avaliar agora', onPress: () => {
-          // TODO: Open rating modal
-          Alert.alert('Avaliação', 'Funcionalidade de avaliação em desenvolvimento');
+      '🎉 Obrigado!',
+      `Sua avaliação de ${rating} estrelas foi enviada!\n\n${comment ? `Comentário: "${comment}"` : ''}`,
+      [{ 
+        text: 'OK', 
+        onPress: () => {
           setCurrentState('idle');
-        }}
-      ]
+          setSelectedProvider(null);
+          setServiceTitle('');
+          setServiceDescription('');
+        }
+      }]
     );
   };
 
@@ -231,6 +256,17 @@ export default function SimpleUberHome() {
           {isOnline ? '🔴 Ficar Offline' : '🟢 Ficar Online'}
         </Text>
       </TouchableOpacity>
+
+      {isOnline && (
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#2196F3' }]}
+          onPress={handleNewServiceRequest}
+        >
+          <Text style={styles.buttonText}>
+            🔔 Simular Nova Solicitação
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -296,7 +332,7 @@ export default function SimpleUberHome() {
           <Text style={styles.buttonText}>🛠️ Solicitar Serviço</Text>
         </TouchableOpacity>
         <Text style={styles.status}>
-          🌐 Firebase: {isConnected ? '🟢 Conectado' : '🔴 Desconectado (usaremos Firebase RT)'}
+          🔥 Firebase RT: {isConnected ? '🟢 Implementaremos!' : '🔴 Vamos usar Firebase em breve'}
         </Text>
       </View>
     );
@@ -373,6 +409,15 @@ export default function SimpleUberHome() {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Rating Modal */}
+      <RatingModal
+        visible={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        providerName={selectedProvider?.name || ''}
+        serviceTitle={serviceTitle}
+        onSubmitRating={handleRatingSubmit}
+      />
     </SafeAreaView>
   );
 }
