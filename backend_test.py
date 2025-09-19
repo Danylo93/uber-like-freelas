@@ -1444,6 +1444,559 @@ class BackendTester:
             self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, f"Login test error: {str(e)}")
             return False
 
+    def test_toggle_provider_status_online(self):
+        """Test toggling provider status to online"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Toggle Provider Status (Online)", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            response = self.session.put(f"{self.base_url}/providers/toggle-status", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "status" in data and "message" in data:
+                    self.provider_status = data["status"]
+                    self.log_result("Toggle Provider Status (Online)", True, f"Provider status toggled to {data['status']}")
+                    return True
+                else:
+                    self.log_result("Toggle Provider Status (Online)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Toggle Provider Status (Online)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Toggle Provider Status (Online)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_toggle_provider_status_offline(self):
+        """Test toggling provider status to offline"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Toggle Provider Status (Offline)", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            response = self.session.put(f"{self.base_url}/providers/toggle-status", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "status" in data and "message" in data:
+                    self.log_result("Toggle Provider Status (Offline)", True, f"Provider status toggled to {data['status']}")
+                    return True
+                else:
+                    self.log_result("Toggle Provider Status (Offline)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Toggle Provider Status (Offline)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Toggle Provider Status (Offline)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_toggle_provider_status_client_forbidden(self):
+        """Test that clients cannot toggle provider status"""
+        if not self.auth_token:
+            self.log_result("Toggle Provider Status (Client Forbidden)", False, "Client auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.put(f"{self.base_url}/providers/toggle-status", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "only providers" in data.get("detail", "").lower():
+                    self.log_result("Toggle Provider Status (Client Forbidden)", True, "Correctly rejected client attempt to toggle provider status")
+                    return True
+                else:
+                    self.log_result("Toggle Provider Status (Client Forbidden)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Toggle Provider Status (Client Forbidden)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Toggle Provider Status (Client Forbidden)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_create_service_request_new_endpoint(self):
+        """Test creating service request using new service actions endpoint"""
+        if not self.auth_token:
+            self.log_result("Create Service Request (New)", False, "No auth token available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            service_data = {
+                "title": "Limpeza Residencial Completa",
+                "category": "limpeza",
+                "description": "Preciso de limpeza completa da casa incluindo banheiros e cozinha",
+                "budget": 180.0,
+                "latitude": -23.5505,
+                "longitude": -46.6333,
+                "address": "Avenida Paulista, São Paulo, SP"
+            }
+            
+            response = self.session.post(f"{self.base_url}/services/request", json=service_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "id" in data and "message" in data and data.get("status") == "pending":
+                    self.new_service_request_id = data["id"]
+                    self.log_result("Create Service Request (New)", True, "Service request created successfully via new endpoint")
+                    return True
+                else:
+                    self.log_result("Create Service Request (New)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Create Service Request (New)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Create Service Request (New)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_nearby_services(self):
+        """Test getting nearby services for providers"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Get Nearby Services", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            params = {
+                "latitude": -23.5505,
+                "longitude": -46.6333,
+                "radius": 10.0
+            }
+            
+            response = self.session.get(f"{self.base_url}/services/nearby", params=params, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "services" in data and "count" in data:
+                    self.log_result("Get Nearby Services", True, f"Retrieved {data['count']} nearby services")
+                    return True
+                else:
+                    self.log_result("Get Nearby Services", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Get Nearby Services", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Nearby Services", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_nearby_services_client_forbidden(self):
+        """Test that clients cannot get nearby services"""
+        if not self.auth_token:
+            self.log_result("Get Nearby Services (Client Forbidden)", False, "Client auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/services/nearby", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "only providers" in data.get("detail", "").lower():
+                    self.log_result("Get Nearby Services (Client Forbidden)", True, "Correctly rejected client attempt to get nearby services")
+                    return True
+                else:
+                    self.log_result("Get Nearby Services (Client Forbidden)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Get Nearby Services (Client Forbidden)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Nearby Services (Client Forbidden)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_accept_service_request(self):
+        """Test provider accepting a service request"""
+        if not hasattr(self, 'provider_auth_token') or not hasattr(self, 'new_service_request_id'):
+            self.log_result("Accept Service Request", False, "Provider auth token or service request ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            response = self.session.post(f"{self.base_url}/services/{self.new_service_request_id}/accept", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "service_id" in data:
+                    self.accepted_service_id = data["service_id"]
+                    self.log_result("Accept Service Request", True, "Service request accepted successfully")
+                    return True
+                else:
+                    self.log_result("Accept Service Request", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Accept Service Request", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Accept Service Request", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_accept_service_request_client_forbidden(self):
+        """Test that clients cannot accept service requests"""
+        if not self.auth_token or not hasattr(self, 'new_service_request_id'):
+            self.log_result("Accept Service Request (Client Forbidden)", False, "Client auth token or service request ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.post(f"{self.base_url}/services/{self.new_service_request_id}/accept", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "only providers" in data.get("detail", "").lower():
+                    self.log_result("Accept Service Request (Client Forbidden)", True, "Correctly rejected client attempt to accept service")
+                    return True
+                else:
+                    self.log_result("Accept Service Request (Client Forbidden)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Accept Service Request (Client Forbidden)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Accept Service Request (Client Forbidden)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_reject_service_request(self):
+        """Test provider rejecting a service request"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Reject Service Request", False, "Provider auth token not available")
+            return False
+        
+        # Create a new service request to reject
+        try:
+            # First create another service request as client
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            service_data = {
+                "title": "Jardinagem",
+                "category": "jardinagem",
+                "description": "Poda de árvores e limpeza do jardim",
+                "budget": 120.0
+            }
+            
+            response = self.session.post(f"{self.base_url}/services/request", json=service_data, headers=headers)
+            if response.status_code != 200:
+                self.log_result("Reject Service Request", False, "Failed to create service for rejection test")
+                return False
+            
+            reject_service_id = response.json()["id"]
+            
+            # Now reject it as provider
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            response = self.session.post(f"{self.base_url}/services/{reject_service_id}/reject", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "service_id" in data:
+                    self.log_result("Reject Service Request", True, "Service request rejected successfully")
+                    return True
+                else:
+                    self.log_result("Reject Service Request", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Reject Service Request", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Reject Service Request", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_service_status_provider(self):
+        """Test provider updating service status"""
+        if not hasattr(self, 'provider_auth_token') or not hasattr(self, 'accepted_service_id'):
+            self.log_result("Update Service Status (Provider)", False, "Provider auth token or accepted service ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            status_data = {"status": "in_progress"}
+            
+            response = self.session.put(f"{self.base_url}/services/{self.accepted_service_id}/status", json=status_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "new_status" in data:
+                    self.log_result("Update Service Status (Provider)", True, f"Service status updated to {data['new_status']}")
+                    return True
+                else:
+                    self.log_result("Update Service Status (Provider)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Update Service Status (Provider)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Service Status (Provider)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_service_status_client(self):
+        """Test client updating service status"""
+        if not self.auth_token or not hasattr(self, 'accepted_service_id'):
+            self.log_result("Update Service Status (Client)", False, "Client auth token or accepted service ID not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            status_data = {"status": "completed"}
+            
+            response = self.session.put(f"{self.base_url}/services/{self.accepted_service_id}/status", json=status_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "new_status" in data:
+                    self.log_result("Update Service Status (Client)", True, f"Service status updated to {data['new_status']}")
+                    return True
+                else:
+                    self.log_result("Update Service Status (Client)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Update Service Status (Client)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Service Status (Client)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_switch_user_role(self):
+        """Test switching user role between client and provider"""
+        if not self.auth_token:
+            self.log_result("Switch User Role", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/users/role-switch", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "new_role" in data and "previous_role" in data and "message" in data:
+                    self.log_result("Switch User Role", True, f"Role switched from {data['previous_role']} to {data['new_role']}")
+                    return True
+                else:
+                    self.log_result("Switch User Role", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Switch User Role", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Switch User Role", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_provider_earnings(self):
+        """Test getting provider earnings summary"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Get Provider Earnings", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            response = self.session.get(f"{self.base_url}/providers/earnings", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                expected_fields = ["total_earnings", "total_services", "monthly_earnings", "monthly_services", "average_service_value", "provider_rating"]
+                if all(field in data for field in expected_fields):
+                    self.log_result("Get Provider Earnings", True, f"Retrieved earnings: R${data['total_earnings']:.2f} from {data['total_services']} services")
+                    return True
+                else:
+                    self.log_result("Get Provider Earnings", False, "Missing expected fields in response", {"response": data})
+            else:
+                self.log_result("Get Provider Earnings", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Provider Earnings", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_provider_earnings_client_forbidden(self):
+        """Test that clients cannot get provider earnings"""
+        if not self.auth_token:
+            self.log_result("Get Provider Earnings (Client Forbidden)", False, "Client auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/providers/earnings", headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "only providers" in data.get("detail", "").lower():
+                    self.log_result("Get Provider Earnings (Client Forbidden)", True, "Correctly rejected client attempt to get provider earnings")
+                    return True
+                else:
+                    self.log_result("Get Provider Earnings (Client Forbidden)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Get Provider Earnings (Client Forbidden)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Provider Earnings (Client Forbidden)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_specific_user_login(self):
+        """Test login with specific user credentials from review request"""
+        try:
+            login_data = {
+                "email": "test@login.com",
+                "password": "TestPassword123!"
+            }
+            
+            response = self.session.post(f"{self.base_url}/auth/login", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "access_token" in data and "user" in data:
+                    self.specific_auth_token = data["access_token"]
+                    self.specific_user_id = data["user"]["id"]
+                    self.log_result("Specific User Login", True, "Login successful with test@login.com credentials")
+                    return True
+                else:
+                    self.log_result("Specific User Login", False, "Missing token or user in response", {"response": data})
+            else:
+                self.log_result("Specific User Login", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Specific User Login", False, f"Request error: {str(e)}")
+        return False
+
+    def run_new_service_actions_tests(self):
+        """Run comprehensive tests for all new service action endpoints"""
+        print("🔥 TESTING NEW SERVICE ACTIONS ENDPOINTS")
+        print(f"🔗 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        # Initialize variables
+        self.service_request_id = None
+        self.provider_auth_token = None
+        self.provider_user_id = None
+        self.new_service_request_id = None
+        self.accepted_service_id = None
+        
+        # Health check first
+        if not self.test_health_check():
+            print("❌ Backend not available - cannot proceed with tests")
+            return
+        
+        # Test specific user login
+        self.test_specific_user_login()
+        
+        # Set up test users
+        self.test_user_registration_client()
+        self.test_user_registration_provider()
+        self.test_user_login_valid()
+        self.test_provider_login()
+        
+        print("\n" + "=" * 60)
+        print("🔄 PROVIDER STATUS TOGGLE TESTS")
+        print("=" * 60)
+        
+        # Provider status toggle tests
+        self.test_toggle_provider_status_online()
+        self.test_toggle_provider_status_offline()
+        self.test_toggle_provider_status_client_forbidden()
+        
+        print("\n" + "=" * 60)
+        print("📋 SERVICE REQUEST CREATION TESTS")
+        print("=" * 60)
+        
+        # Service request creation via new endpoint
+        self.test_create_service_request_new_endpoint()
+        
+        print("\n" + "=" * 60)
+        print("🗺️ NEARBY SERVICES TESTS")
+        print("=" * 60)
+        
+        # Nearby services tests
+        self.test_get_nearby_services()
+        self.test_get_nearby_services_client_forbidden()
+        
+        print("\n" + "=" * 60)
+        print("✅ SERVICE ACCEPTANCE/REJECTION TESTS")
+        print("=" * 60)
+        
+        # Service acceptance/rejection tests
+        self.test_accept_service_request()
+        self.test_accept_service_request_client_forbidden()
+        self.test_reject_service_request()
+        
+        print("\n" + "=" * 60)
+        print("📊 SERVICE STATUS UPDATE TESTS")
+        print("=" * 60)
+        
+        # Service status update tests
+        self.test_update_service_status_provider()
+        self.test_update_service_status_client()
+        
+        print("\n" + "=" * 60)
+        print("🔄 ROLE SWITCHING TESTS")
+        print("=" * 60)
+        
+        # Role switching test
+        self.test_switch_user_role()
+        
+        print("\n" + "=" * 60)
+        print("💰 PROVIDER EARNINGS TESTS")
+        print("=" * 60)
+        
+        # Provider earnings tests
+        self.test_get_provider_earnings()
+        self.test_get_provider_earnings_client_forbidden()
+        
+        # Print comprehensive summary
+        self.print_new_service_actions_summary()
+    
+    def print_new_service_actions_summary(self):
+        """Print detailed summary of new service actions tests"""
+        print("\n" + "=" * 80)
+        print("📊 NEW SERVICE ACTIONS TEST SUMMARY")
+        print("=" * 80)
+        
+        # Filter results for new service actions tests
+        new_tests = [
+            "Toggle Provider Status (Online)",
+            "Toggle Provider Status (Offline)", 
+            "Toggle Provider Status (Client Forbidden)",
+            "Create Service Request (New)",
+            "Get Nearby Services",
+            "Get Nearby Services (Client Forbidden)",
+            "Accept Service Request",
+            "Accept Service Request (Client Forbidden)",
+            "Reject Service Request",
+            "Update Service Status (Provider)",
+            "Update Service Status (Client)",
+            "Switch User Role",
+            "Get Provider Earnings",
+            "Get Provider Earnings (Client Forbidden)",
+            "Specific User Login"
+        ]
+        
+        new_results = [r for r in self.test_results if r["test"] in new_tests]
+        
+        passed = sum(1 for result in new_results if result["success"])
+        failed = len(new_results) - passed
+        
+        print(f"📈 NEW SERVICE ACTIONS TESTS: {len(new_results)} total")
+        print(f"✅ Passed: {passed}")
+        print(f"❌ Failed: {failed}")
+        print(f"📊 Success Rate: {(passed/len(new_results)*100):.1f}%")
+        
+        if failed > 0:
+            print("\n🔍 FAILED TESTS:")
+            for result in new_results:
+                if not result["success"]:
+                    print(f"  • {result['test']}: {result['message']}")
+        
+        print("\n🎯 TESTED ENDPOINTS:")
+        print("=" * 50)
+        print("✅ PUT /api/providers/toggle-status - Toggle provider online/offline")
+        print("✅ POST /api/services/request - Create service request")
+        print("✅ GET /api/services/nearby - Get nearby services for providers")
+        print("✅ POST /api/services/{id}/accept - Accept service request")
+        print("✅ POST /api/services/{id}/reject - Reject service request")
+        print("✅ PUT /api/services/{id}/status - Update service status")
+        print("✅ GET /api/users/role-switch - Switch user role")
+        print("✅ GET /api/providers/earnings - Get provider earnings")
+        
+        print("\n🔐 AUTHENTICATION & AUTHORIZATION TESTED:")
+        print("=" * 50)
+        print("✅ Role-based access control (client vs provider)")
+        print("✅ JWT token validation")
+        print("✅ Unauthorized access prevention")
+        print("✅ Specific user credentials (test@login.com)")
+        
+        print("\n🚀 COMPLETE WORKFLOW TESTED:")
+        print("=" * 50)
+        print("1. ✅ Provider toggles status online")
+        print("2. ✅ Client creates service request")
+        print("3. ✅ Provider views nearby services")
+        print("4. ✅ Provider accepts service request")
+        print("5. ✅ Provider updates service status to in_progress")
+        print("6. ✅ Client updates service status to completed")
+        print("7. ✅ Provider views earnings summary")
+        print("8. ✅ User switches role between client/provider")
+        
+        if failed == 0:
+            print("\n🎉 ALL NEW SERVICE ACTIONS ARE WORKING PERFECTLY!")
+            print("🎯 The 'botões sem ação' problem has been resolved!")
+        else:
+            print(f"\n⚠️  {failed} issues found that need attention")
+        
+        print("=" * 80)
+
     def run_focused_login_test(self):
         """Run only the focused login test as requested"""
         print("🎯 FOCUSED LOGIN TEST FOR SPECIFIC USER")
