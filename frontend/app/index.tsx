@@ -10,13 +10,24 @@ export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.replace('/(main)/home');
-      } else {
-        router.replace('/login');
+    console.log('🔄 Index useEffect - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+    
+    // Add a small delay to ensure auth state is properly updated
+    const checkAuth = async () => {
+      if (!isLoading) {
+        if (isAuthenticated) {
+          console.log('🏠 Navigating to home...');
+          router.replace('/(main)/home');
+        } else {
+          console.log('🔑 Navigating to login...');
+          router.replace('/login');
+        }
       }
-    }
+    };
+
+    // Use setTimeout to ensure state updates have completed
+    const timeoutId = setTimeout(checkAuth, 100);
+    return () => clearTimeout(timeoutId);
   }, [isAuthenticated, isLoading, router]);
 
   const styles = StyleSheet.create({
