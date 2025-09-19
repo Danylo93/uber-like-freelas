@@ -62,6 +62,78 @@ export default function UberHomeScreen() {
     recalculateRoute,
   } = useDirections();
 
+  // Real-time notifications hook
+  const {
+    notifications,
+    hideNotification,
+    showProviderFoundNotification,
+    showProviderNearbyNotification,
+    showServiceStartedNotification,
+    showETAUpdateNotification,
+  } = useRealTimeNotifications();
+
+  // Additional states for advanced features
+  const [nearbyProviders, setNearbyProviders] = useState<ServiceProvider[]>([]);
+  const [simulationActive, setSimulationActive] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [serviceTitle, setServiceTitle] = useState('');
+  const [serviceDescription, setServiceDescription] = useState('');
+  const [serviceAddress, setServiceAddress] = useState('');
+  const [showServiceForm, setShowServiceForm] = useState(false);
+  const [showSearchingAnimation, setShowSearchingAnimation] = useState(false);
+  const [pendingServiceRequest, setPendingServiceRequest] = useState(null);
+  const [showEarningsDashboard, setShowEarningsDashboard] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
+
+  // Initialize provider simulation and real-time features
+  useEffect(() => {
+    initializeAdvancedFeatures();
+    
+    return () => {
+      providerSimulator.stopSimulation();
+    };
+  }, []);
+
+  // Monitor user location changes for provider updates
+  useEffect(() => {
+    if (userLocation && simulationActive) {
+      const providers = providerSimulator.getProvidersNearLocation(userLocation, 5);
+      setNearbyProviders(providers);
+    }
+  }, [userLocation, simulationActive]);
+
+  const initializeAdvancedFeatures = () => {
+    console.log('🚀 Initializing advanced Uber-like features...');
+    
+    // Start provider movement simulation
+    providerSimulator.startSimulation(3000); // Update every 3 seconds
+    setSimulationActive(true);
+    
+    // Listen for provider updates
+    providerSimulator.onProvidersUpdate((updatedProviders) => {
+      if (userLocation) {
+        const nearbyUpdated = providerSimulator.getProvidersNearLocation(userLocation, 5);
+        setNearbyProviders(nearbyUpdated);
+        
+        // Show notifications for very close providers (< 500m) randomly
+        nearbyUpdated.forEach(provider => {
+          if (provider.distance < 0.5 && Math.random() < 0.1) { // 10% chance
+            showProviderNearbyNotification(provider.name, `${provider.distance.toFixed(1)}km`);
+          }
+        });
+        
+        // Update ETA if there's a selected provider
+        if (selectedProvider) {
+          const updatedProvider = nearbyUpdated.find(p => p.id === selectedProvider.id);
+          if (updatedProvider && updatedProvider.estimatedTime !== selectedProvider.estimatedTime) {
+            showETAUpdateNotification(updatedProvider.estimatedTime);
+          }
+        }
+      }
+    });
+  };
+
   const [selectedCategory, setSelectedCategory] = useState('');
   const [serviceTitle, setServiceTitle] = useState('');
   const [serviceDescription, setServiceDescription] = useState('');
