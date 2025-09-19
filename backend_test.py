@@ -1104,6 +1104,23 @@ class BackendTester:
         self.test_get_user_reviews()
         self.test_provider_rating_updated()
         
+        print("\n" + "=" * 60)
+        print("💬 CHAT SYSTEM TESTS")
+        print("=" * 60)
+        
+        # Chat system tests
+        self.test_create_chat()
+        self.test_create_chat_missing_participant()
+        self.test_get_user_chats()
+        self.test_send_message()
+        self.test_send_message_provider()
+        self.test_send_message_unauthorized_chat()
+        self.test_get_chat_messages()
+        self.test_get_chat_messages_with_pagination()
+        self.test_get_chat_messages_unauthorized()
+        self.test_mark_messages_as_read()
+        self.test_mark_messages_as_read_unauthorized()
+        
         # Summary
         print("\n" + "=" * 60)
         print("📊 TEST SUMMARY")
