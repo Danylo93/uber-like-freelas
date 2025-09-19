@@ -9,8 +9,7 @@ import { ServicesProvider } from '../src/contexts/ServicesContext';
 import { ChatProvider } from '../src/contexts/ChatContext';
 import { WebSocketProvider } from '../src/contexts/WebSocketContext';
 import { MatchingProvider } from '../src/contexts/MatchingContext';
-// Firebase temporarily disabled until credentials are provided
-// import { FirebaseProvider } from '../src/contexts/FirebaseContext';
+import { FirebaseProvider } from '../src/contexts/FirebaseContext';
 
 const queryClient = new QueryClient();
 
