@@ -54,7 +54,7 @@ async def get_user_by_email(email: str) -> Optional[User]:
     return None
 
 async def get_user_by_id(user_id: str) -> Optional[User]:
-    if not db:
+    if db is None:
         return None
     
     user_data = await db.users.find_one({"id": user_id})
