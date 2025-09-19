@@ -677,6 +677,13 @@ export default function UberHomeScreen() {
         onCancel={() => setPendingServiceRequest(null)}
         timeLeft={30}
       />
+
+      {/* Turn-by-Turn Navigation */}
+      <TurnByTurnNavigation
+        isVisible={showNavigation}
+        onClose={handleStopNavigation}
+        onRecalculate={handleRecalculateRoute}
+      />
     </SafeAreaView>
   );
 }
