@@ -168,10 +168,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         )
       );
 
-      // In a real app, send to backend/Firebase here
-      // await apiService.sendMessage({ chatId, content, type, receiverId });
+      // Send message to backend
+      await apiService.post(`/chats/${chatId}/messages`, {
+        content,
+        message_type: type,
+        service_request_id: chat.serviceRequestId
+      });
 
-      console.log('Message sent:', newMessage);
+      console.log('Message sent successfully:', newMessage);
 
     } catch (error) {
       console.error('Error sending message:', error);
