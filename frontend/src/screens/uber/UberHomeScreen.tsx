@@ -692,16 +692,42 @@ export default function UberHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Real-time Notifications */}
+      <RealTimeNotifications
+        notifications={notifications}
+        onNotificationDismiss={hideNotification}
+        position="top"
+      />
+
       <InteractiveMapView
         userLocation={userLocation}
-        markers={availableProviders.map(provider => ({
-          id: provider.id,
-          coordinate: provider.coordinate,
-          title: provider.name,
-          subtitle: `R$ ${provider.price} • ${provider.distance.toFixed(1)}km`,
-          type: 'provider' as const,
-          price: provider.price,
-        }))}
+        markers={[
+          // Original providers from matching context
+          ...availableProviders.map(provider => ({
+            id: provider.id,
+            coordinate: provider.coordinate,
+            title: provider.name,
+            subtitle: `R$ ${provider.price} • ${provider.distance.toFixed(1)}km`,
+            type: 'provider' as const,
+            price: provider.price,
+          })),
+          // Additional nearby providers from simulation
+          ...nearbyProviders.map(provider => ({
+            id: `sim_${provider.id}`,
+            coordinate: provider.coordinate,
+            title: `${provider.avatar} ${provider.name}`,
+            subtitle: `${provider.category} • ${provider.distance.toFixed(1)}km • R$ ${provider.price.toFixed(2)}`,
+            type: 'provider' as const,
+            price: provider.price,
+          })),
+          // User location marker
+          ...(userLocation ? [{
+            id: 'user',
+            coordinate: userLocation,
+            title: 'Você está aqui',
+            type: 'user' as const,
+          }] : []),
+        ]}
         route={routeInfo?.polylinePoints || []}
         onMarkerPress={handleProviderSelect}
         showUserLocation={true}
