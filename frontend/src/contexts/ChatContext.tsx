@@ -236,8 +236,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setChats(prev => [...prev, newChat]);
       setMessages(prev => ({ ...prev, [chatId]: [] }));
 
-      // In a real app, create chat in backend here
-      // await apiService.createChat({ participantId, serviceRequestId });
+      // Create chat in backend
+      await apiService.post('/chats', {
+        participant_id: participantId,
+        service_request_id: serviceRequestId
+      });
 
       return chatId;
 
