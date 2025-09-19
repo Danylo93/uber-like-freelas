@@ -70,13 +70,27 @@ export interface ChatMessage {
 
 class FirebaseRealtimeService {
   private initialized: boolean = false;
+  private app: any = null;
+  private database: any = null;
+  private auth: any = null;
 
   async initialize() {
     if (this.initialized) return;
     
     try {
+      // Check if Firebase is properly configured
+      if (!isFirebaseConfigured) {
+        console.log('Firebase not configured - missing credentials');
+        return;
+      }
+
+      // Initialize Firebase components
+      this.app = app;
+      this.database = database;
+      this.auth = auth;
+      
       // Sign in anonymously to Firebase
-      await signInAnonymously(auth);
+      await signInAnonymously(this.auth);
       this.initialized = true;
       console.log('Firebase Realtime Database initialized successfully');
     } catch (error) {
