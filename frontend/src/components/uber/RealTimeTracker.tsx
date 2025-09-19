@@ -35,6 +35,7 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
   onCallProvider,
   onChatProvider,
   onCancelService,
+  onStartNavigation,
   style,
 }) => {
   const themeContext = useTheme();
