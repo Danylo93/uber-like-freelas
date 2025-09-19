@@ -5,7 +5,8 @@ import * as Location from 'expo-location';
 import { useTheme } from '../../theme/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
-import { useFirebase } from '../../contexts/FirebaseContext';
+// Firebase temporarily disabled until credentials are provided
+// import { useFirebase } from '../../contexts/FirebaseContext';
 import { RatingModal } from '../../components/ui/RatingModal';
 import { serviceActionsAPI, ServiceRequest } from '../../services/serviceActions';
 
