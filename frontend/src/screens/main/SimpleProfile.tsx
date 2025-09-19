@@ -8,8 +8,9 @@ import { serviceActionsAPI } from '../../services/serviceActions';
 
 export default function SimpleProfile() {
   const themeContext = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const theme = themeContext?.theme || {
     colors: { background: '#F6F6F6', surface: '#FFFFFF', primary: '#6750A4', onSurface: '#1C1B1F', onSurfaceVariant: '#49454F', outline: '#79747E' },
