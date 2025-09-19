@@ -30,7 +30,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={theme?.colors?.primary || '#6750A4'} />
+      <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
   );
 }
