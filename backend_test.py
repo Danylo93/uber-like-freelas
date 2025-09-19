@@ -793,6 +793,9 @@ class BackendTester:
         self.test_provider_login()
         self.test_create_offer()
         
+        # Simulate service acceptance for review testing
+        self.test_simulate_service_acceptance()
+        
         print("\n" + "=" * 60)
         print("🔔 PUSH NOTIFICATION SYSTEM TESTS")
         print("=" * 60)
