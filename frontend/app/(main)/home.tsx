@@ -166,9 +166,26 @@ export default function HomeScreen() {
         
         <View style={styles.buttonRow}>
           <Button
+        <View style={styles.buttonRow}>
+          <Button
             title="Nova Solicitação"
             onPress={() => router.push('/service-request')}
             variant="primary"
+            style={{ flex: 1 }}
+          />
+          <Button
+            title="AI Assistant"
+            onPress={() => router.push('/ai-recommendations')}
+            variant="tonal"
+            style={{ flex: 1 }}
+          />
+        </View>
+        
+        <View style={styles.buttonRow}>
+          <Button
+            title="Chat"
+            onPress={() => router.push('/chat')}
+            variant="outlined"
             style={{ flex: 1 }}
           />
           <Button
@@ -177,6 +194,7 @@ export default function HomeScreen() {
             variant="outlined"
             style={{ flex: 1 }}
           />
+        </View>
         </View>
       </View>
     </View>
