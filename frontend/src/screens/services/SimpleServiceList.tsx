@@ -203,14 +203,20 @@ export default function SimpleServiceList() {
 
         {services.length > 0 ? (
           services.map((service) => (
-            <TouchableOpacity key={service.id} style={styles.card} onPress={() => handleServicePress(service)}>
+            <TouchableOpacity key={service.id} style={styles.card} onPress={() => handleServicePress(service)} disabled={loading}>
               <Text style={styles.cardTitle}>{service.title}</Text>
-              <Text style={styles.cardCategory}>{service.category}</Text>
-              {isProvider && <Text style={styles.cardClient}>👤 Cliente: {service.clientName} • 📍 {service.location}</Text>}
+              <Text style={styles.cardCategory}>
+                {service.category || `${serviceCategories.find(cat => cat.id === service.category)?.icon} ${serviceCategories.find(cat => cat.id === service.category)?.name}`}
+              </Text>
+              {isProvider && <Text style={styles.cardClient}>👤 Cliente: {service.client_name || service.clientName} • 📍 {service.location?.address || service.location}</Text>}
               <Text style={styles.cardDescription}>{service.description}</Text>
               <View style={styles.cardFooter}>
-                <Text style={styles.price}>{service.price}</Text>
-                <Text style={getStatusStyle(service.status)}>{service.status}</Text>
+                <Text style={styles.price}>
+                  {service.budget ? `R$ ${service.budget},00` : service.price || 'A negociar'}
+                </Text>
+                <Text style={getStatusStyle(service.status || 'Disponível')}>
+                  {service.status || 'Disponível'}
+                </Text>
               </View>
             </TouchableOpacity>
           ))
