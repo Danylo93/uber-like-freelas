@@ -147,7 +147,16 @@ export default function SimpleProfile() {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={[styles.menuItem, styles.switchItem]} onPress={handleRoleSwitch} disabled={loading}>
+        <TouchableOpacity 
+          style={[styles.menuItem, styles.switchItem]} 
+          onPress={() => {
+            console.log('🔧 BUTTON PRESSED - Role switch button clicked!');
+            Alert.alert('Teste', 'Botão foi clicado!', [
+              { text: 'OK', onPress: () => handleRoleSwitch() }
+            ]);
+          }} 
+          disabled={loading}
+        >
           <Text style={[styles.menuItemText, styles.switchText]}>
             {loading ? '⏳ Alterando...' : `🔄 Trocar para ${isProvider ? 'Cliente' : 'Prestador'}`}
           </Text>
