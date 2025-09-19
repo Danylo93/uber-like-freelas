@@ -609,8 +609,10 @@ export default function UberHomeScreen() {
           type: 'provider' as const,
           price: provider.price,
         }))}
+        route={routeInfo?.polylinePoints || []}
         onMarkerPress={handleProviderSelect}
         showUserLocation={true}
+        animated={true}
       />
 
       {/* Show search bar only for clients */}
