@@ -250,6 +250,47 @@ async def update_provider_rating(provider_id: str):
             }}
         )
 
+# Push notification routes
+@api_router.post("/notifications/token")
+async def save_push_token(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    body = await request.json()
+    push_token = body.get("push_token")
+    
+    if not push_token:
+        raise HTTPException(status_code=400, detail="Push token is required")
+    
+    success = await notification_service.save_push_token(current_user.id, push_token)
+    if success:
+        return {"message": "Push token saved successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to save push token")
+
+@api_router.post("/notifications/test")
+async def test_notification(
+    current_user: User = Depends(get_current_user)
+):
+    """Test endpoint to send a notification to current user"""
+    push_tokens_map = await notification_service.get_user_push_tokens([current_user.id])
+    push_tokens = list(push_tokens_map.values())
+    
+    if not push_tokens:
+        raise HTTPException(status_code=404, detail="No push token found for user")
+    
+    success = await notification_service.send_push_notification(
+        push_tokens=push_tokens,
+        title="🔔 Teste de Notificação",
+        body="Suas notificações estão funcionando perfeitamente!",
+        data={"type": "test"}
+    )
+    
+    if success:
+        return {"message": "Test notification sent successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send test notification")
+
 # Webhook route (outside /api prefix for Stripe)
 @app.post("/api/webhook/stripe") 
 async def stripe_webhook_direct(request: Request):
