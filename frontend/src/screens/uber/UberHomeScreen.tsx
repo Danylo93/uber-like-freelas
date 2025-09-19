@@ -12,6 +12,12 @@ import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
 import { Chip } from '../../components/ui/Chip';
 import { Card } from '../../components/ui/Card';
+import { SearchingAnimation } from '../../components/uber/SearchingAnimation';
+import { ServiceRequestModal } from '../../components/uber/ServiceRequestModal';
+import { RealTimeTracker } from '../../components/uber/RealTimeTracker';
+import { EarningsDashboard } from '../../components/uber/EarningsDashboard';
+import { ProviderStatusToggle } from '../../components/uber/ProviderStatusToggle';
+import { useRealTimeService } from '../../hooks/useRealTimeService';
 
 export default function UberHomeScreen() {
   const { theme } = useTheme();
