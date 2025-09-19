@@ -8,7 +8,6 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { RatingModal } from '../../components/ui/RatingModal';
 import { serviceActionsAPI, ServiceRequest } from '../../services/serviceActions';
-import { testFirebaseConnection } from '../../services/firebaseTest';
 
 export default function SimpleUberHome() {
   const themeContext = useTheme();
