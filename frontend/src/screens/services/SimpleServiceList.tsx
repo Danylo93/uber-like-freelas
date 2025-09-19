@@ -232,9 +232,9 @@ export default function SimpleServiceList() {
           } else {
             setShowNewServiceModal(true);
           }
-        }}>
+        }} disabled={loading}>
           <Text style={styles.buttonText}>
-            {isProvider ? '🔄 Atualizar Solicitações' : '➕ Solicitar Novo Serviço'}
+            {loading ? '⏳ Carregando...' : (isProvider ? '🔄 Atualizar Solicitações' : '➕ Solicitar Novo Serviço')}
           </Text>
         </TouchableOpacity>
       </ScrollView>
