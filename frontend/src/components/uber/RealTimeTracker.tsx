@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 import { ServiceRequest } from '../../hooks/useRealTimeService';
 import { ServiceStatusTransition } from './ServiceStatusTransition';
 

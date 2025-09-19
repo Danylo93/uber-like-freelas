@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tonal' | 'outlined' | 'text';
 export type ButtonSize = 'small' | 'medium' | 'large';

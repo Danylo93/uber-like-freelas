@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 import { useRealTimeService } from '../../hooks/useRealTimeService';
 import { useAuth } from '../../contexts/AuthContext';
 

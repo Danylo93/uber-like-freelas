@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextInput as RNTextInput, View, Text, StyleSheet, TextInputProps, ViewStyle, TextStyle } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface CustomTextInputProps extends Omit<TextInputProps, 'style'> {
   label?: string;

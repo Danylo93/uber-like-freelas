@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import * as Location from 'expo-location';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface GoogleMapViewProps {
   initialRegion?: {

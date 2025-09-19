@@ -7,7 +7,7 @@ import {
   PanResponder,
   TouchableWithoutFeedback 
 } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface BottomSheetProps {
   children: React.ReactNode;
