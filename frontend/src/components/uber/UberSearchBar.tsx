@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface UberSearchBarProps {
   onPress: () => void;
