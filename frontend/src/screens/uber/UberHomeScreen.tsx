@@ -76,7 +76,7 @@ export default function UberHomeScreen() {
       case 'idle':
         return (
           <View style={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>Para onde vamos?</Text>
+            <Text style={styles.sheetTitle}>Que serviço você precisa?</Text>
             <Text style={styles.sheetSubtitle}>
               Encontre prestadores de serviços próximos a você
             </Text>
