@@ -318,11 +318,8 @@
 
 ## test_plan:
   current_focus:
-    - "Authentication Context"
-    - "Login Screen"
-    - "Register Screen"
-    - "Main Navigation Structure"
-    - "Home Screen with Maps"
+    - "Push Notifications System"
+    - "Rating System Backend"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
