@@ -117,9 +117,9 @@ export default function SimpleProfile() {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={[styles.menuItem, styles.switchItem]} onPress={handleRoleSwitch}>
+        <TouchableOpacity style={[styles.menuItem, styles.switchItem]} onPress={handleRoleSwitch} disabled={loading}>
           <Text style={[styles.menuItemText, styles.switchText]}>
-            Trocar para {isProvider ? 'Cliente' : 'Prestador'}
+            {loading ? '⏳ Alterando...' : `Trocar para ${isProvider ? 'Cliente' : 'Prestador'}`}
           </Text>
           <Text style={styles.menuItemIcon}>🔄</Text>
         </TouchableOpacity>
