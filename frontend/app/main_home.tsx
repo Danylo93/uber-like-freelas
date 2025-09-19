@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useTheme } from '../../src/contexts/ThemeContext';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -14,12 +13,6 @@ export default function HomeScreen() {
   const { user } = useAuth();
   
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [region, setRegion] = useState<Region>({
-    latitude: -23.5505,
-    longitude: -46.6333,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
 
   useEffect(() => {
     requestLocationPermission();
@@ -39,13 +32,6 @@ export default function HomeScreen() {
 
       const currentLocation = await Location.getCurrentPositionAsync({});
       setLocation(currentLocation);
-      
-      setRegion({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
     } catch (error) {
       console.error('Error getting location:', error);
     }
@@ -65,14 +51,20 @@ export default function HomeScreen() {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    map: {
+    mapPlaceholder: {
       flex: 1,
+      backgroundColor: theme.colors.surfaceContainer,
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: theme.spacing.md,
+      borderRadius: theme.borderRadius.medium,
+    },
+    mapText: {
+      ...theme.typography.bodyLarge,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
     },
     bottomSheet: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
       backgroundColor: theme.colors.surface,
       borderTopLeftRadius: theme.borderRadius.large,
       borderTopRightRadius: theme.borderRadius.large,
@@ -134,7 +126,7 @@ export default function HomeScreen() {
               label={category}
               onPress={() => {
                 // TODO: Navigate to service request
-                console.log('Selected category:', category);
+                Alert.alert('Serviço', `Você selecionou: ${category}`);
               }}
             />
           ))}
@@ -157,7 +149,7 @@ export default function HomeScreen() {
         <Button
           title={user?.isOnline ? 'Ficar Offline' : 'Ficar Online'}
           onPress={() => {
-            // TODO: Toggle online status
+            Alert.alert('Status', `Você está agora ${user?.isOnline ? 'Offline' : 'Online'}`);
           }}
           variant={user?.isOnline ? 'outlined' : 'primary'}
         />
@@ -171,23 +163,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MapView
-        style={styles.map}
-        region={region}
-        onRegionChange={setRegion}
-        showsUserLocation={true}
-        showsMyLocationButton={false}
-      >
-        {location && (
-          <Marker
-            coordinate={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            }}
-            title="Sua localização"
-          />
-        )}
-      </MapView>
+      <View style={styles.mapPlaceholder}>
+        <Text style={styles.mapText}>
+          🗺️{'\n\n'}
+          Mapa será exibido aqui{'\n'}
+          (Funcionalidade em desenvolvimento)
+          {location && (
+            `\n\nLocalização atual:\nLat: ${location.coords.latitude.toFixed(4)}\nLng: ${location.coords.longitude.toFixed(4)}`
+          )}
+        </Text>
+      </View>
 
       <View style={styles.floatingButton}>
         <Button
