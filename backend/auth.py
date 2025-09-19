@@ -76,7 +76,7 @@ async def authenticate_user(email: str, password: str) -> Optional[User]:
     return user
 
 async def create_user(user_create: UserCreate) -> User:
-    if not db:
+    if db is None:
         raise HTTPException(status_code=500, detail="Database not available")
     
     # Check if user already exists
