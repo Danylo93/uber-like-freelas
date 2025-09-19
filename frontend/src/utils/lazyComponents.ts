@@ -44,7 +44,7 @@ export const withLazyLoading = <P extends object>(
 // Lazy loaded screens for better performance
 export const LazyLoginScreen = lazy(() => import('../screens/auth/LoginScreen'));
 export const LazyRegisterScreen = lazy(() => import('../screens/auth/RegisterScreen'));
-export const LazyUberHomeScreen = lazy(() => import('../screens/uber/UberHomeScreen'));
+export const LazyUberHomeScreen = lazy(() => import('../screens/uber/SimpleUberHome'));
 export const LazyAccountScreen = lazy(() => import('../screens/main/AccountScreen'));
 export const LazyActivityScreen = lazy(() => import('../screens/main/ActivityScreen'));
 export const LazyServiceListScreen = lazy(() => import('../screens/main/ServiceListScreen'));
