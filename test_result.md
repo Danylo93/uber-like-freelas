@@ -455,13 +455,11 @@
 
 ## test_plan:
   current_focus:
-    - "Login Screen"
-    - "Authentication Context"
     - "Frontend Chat Context Update"
-  stuck_tasks: 
-    - "Login Screen"
+    - "Rating Components Frontend"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
   completed_backend_testing:
     - "Real-Time WebSocket System"
     - "Provider Status Management"
