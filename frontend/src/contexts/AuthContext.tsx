@@ -177,6 +177,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+      if (!token) return;
+
+      const response = await apiService.get('/users/me');
+      const userData = response.data;
+
+      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+      setUser(userData);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      // If refresh fails, we might need to logout
+      if (error.response?.status === 401) {
+        await logout();
+      }
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
