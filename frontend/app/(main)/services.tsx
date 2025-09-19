@@ -1,3 +1,3 @@
-import ServiceListScreen from '../../src/screens/services/ServiceListScreen';
+import SimpleServiceList from '../../src/screens/services/SimpleServiceList';
 
-export default ServiceListScreen;
+export default SimpleServiceList;

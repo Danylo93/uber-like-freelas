@@ -1,3 +1,3 @@
-import UberHomeScreen from '../../src/screens/uber/UberHomeScreen';
+import SimpleUberHome from '../../src/screens/uber/SimpleUberHome';
 
-export default UberHomeScreen;
+export default SimpleUberHome;
