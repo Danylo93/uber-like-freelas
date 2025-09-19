@@ -13,6 +13,7 @@ export default function SimpleUberHome() {
   const themeContext = useTheme();
   const { user } = useAuth();
   const { isConnected } = useWebSocket();
+  const firebase = useFirebase();
   
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [currentState, setCurrentState] = useState<'idle' | 'searching' | 'provider_found' | 'in_progress' | 'completed'>('idle');
