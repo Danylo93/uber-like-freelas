@@ -102,14 +102,32 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const loadMessages = async (chatId: string) => {
     try {
-      // In a real app, this would load messages from backend/Firebase
-      // For now, return empty array since we removed mocks
+      const response = await apiService.get(`/chats/${chatId}/messages`);
+      const backendMessages = response.data || [];
+      
+      // Transform backend messages to match our interface
+      const transformedMessages: Message[] = backendMessages.map((msg: any) => ({
+        id: msg.id,
+        senderId: msg.sender_id,
+        receiverId: msg.receiver_id || '',
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+        read: !!msg.read_at,
+        type: msg.message_type as 'text' | 'image' | 'location',
+        serviceRequestId: msg.service_request_id,
+      }));
+
+      setMessages(prev => ({
+        ...prev,
+        [chatId]: transformedMessages
+      }));
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      // Set empty array on error
       setMessages(prev => ({
         ...prev,
         [chatId]: []
       }));
-    } catch (error) {
-      console.error('Error loading messages:', error);
     }
   };
 
