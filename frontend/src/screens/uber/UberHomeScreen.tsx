@@ -48,6 +48,17 @@ export default function UberHomeScreen() {
     rejectServiceRequest,
   } = useRealTimeService();
 
+  const {
+    routeInfo,
+    isLoading: isRouteLoading,
+    error: routeError,
+    getRoute,
+    clearRoute,
+    isNavigating,
+    updateCurrentLocation,
+    recalculateRoute,
+  } = useDirections();
+
   const [selectedCategory, setSelectedCategory] = useState('');
   const [serviceTitle, setServiceTitle] = useState('');
   const [serviceDescription, setServiceDescription] = useState('');
@@ -56,6 +67,7 @@ export default function UberHomeScreen() {
   const [showSearchingAnimation, setShowSearchingAnimation] = useState(false);
   const [pendingServiceRequest, setPendingServiceRequest] = useState(null);
   const [showEarningsDashboard, setShowEarningsDashboard] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
 
   const serviceCategories = [
     { id: 'limpeza', label: 'Limpeza', icon: '🧹' },
