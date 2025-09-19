@@ -453,11 +453,18 @@ export default function UberHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <UberMapView
+      <InteractiveMapView
         userLocation={userLocation}
-        serviceProviders={availableProviders}
-        selectedProviderId={selectedProvider?.id}
-        onProviderSelect={handleProviderSelect}
+        markers={availableProviders.map(provider => ({
+          id: provider.id,
+          coordinate: provider.coordinate,
+          title: provider.name,
+          subtitle: `R$ ${provider.price} • ${provider.distance.toFixed(1)}km`,
+          type: 'provider' as const,
+          price: provider.price,
+        }))}
+        onMarkerPress={handleProviderSelect}
+        showUserLocation={true}
       />
 
       <SearchBar
