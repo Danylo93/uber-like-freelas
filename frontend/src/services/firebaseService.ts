@@ -13,10 +13,21 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const auth = getAuth(app);
+// Check if Firebase is properly configured
+const isFirebaseConfigured = firebaseConfig.apiKey && 
+                             firebaseConfig.databaseURL && 
+                             firebaseConfig.projectId;
+
+// Initialize Firebase only if configured
+let app: any = null;
+let database: any = null;
+let auth: any = null;
+
+if (isFirebaseConfigured) {
+  app = initializeApp(firebaseConfig);
+  database = getDatabase(app);
+  auth = getAuth(app);
+}
 
 export interface RealTimeServiceRequest {
   id: string;
