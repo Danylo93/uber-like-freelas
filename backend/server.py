@@ -14,6 +14,7 @@ from payments import PaymentService
 from payment_routes import router as payment_router, set_payment_service
 from ai_service import AIService
 from ai_routes import router as ai_router, set_ai_service
+from notification_service import NotificationService
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
