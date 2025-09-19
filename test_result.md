@@ -276,6 +276,9 @@
       - working: "NA"
         agent: "main"
         comment: "Created main map screen with location permissions, role-based UI (client/provider), and bottom sheet design"
+      - working: "NA"
+        agent: "main"
+        comment: "Removed MapView dependency and replaced with placeholder to resolve react-native-maps compatibility issues. Added Alert feedback for user interactions. Map functionality will be implemented later."
 
 ## metadata:
   created_by: "main_agent"
