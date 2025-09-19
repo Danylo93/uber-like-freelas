@@ -38,11 +38,22 @@ export default function UberHomeScreen() {
     resetState,
   } = useMatching();
 
+  const {
+    serviceRequests,
+    isProviderOnline,
+    toggleProviderStatus,
+    acceptServiceRequest,
+    rejectServiceRequest,
+  } = useRealTimeService();
+
   const [selectedCategory, setSelectedCategory] = useState('');
   const [serviceTitle, setServiceTitle] = useState('');
   const [serviceDescription, setServiceDescription] = useState('');
   const [serviceAddress, setServiceAddress] = useState('');
   const [showServiceForm, setShowServiceForm] = useState(false);
+  const [showSearchingAnimation, setShowSearchingAnimation] = useState(false);
+  const [pendingServiceRequest, setPendingServiceRequest] = useState(null);
+  const [showEarningsDashboard, setShowEarningsDashboard] = useState(false);
 
   const serviceCategories = [
     { id: 'limpeza', label: 'Limpeza', icon: '🧹' },
