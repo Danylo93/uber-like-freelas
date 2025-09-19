@@ -84,6 +84,11 @@ export default function UberHomeScreen() {
     }
   }, [error]);
 
+  // Debug effect to monitor showServiceForm state
+  useEffect(() => {
+    console.log('🔄 showServiceForm state changed:', showServiceForm);
+  }, [showServiceForm]);
+
   const handleSearchPress = () => {
     setShowServiceForm(true);
   };
