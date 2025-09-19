@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMatching } from '../../contexts/MatchingContext';
 import { InteractiveMapView } from '../../components/maps/InteractiveMapView';
-import { SearchBar } from '../../components/uber/SearchBar';
+import { UberSearchBar } from '../../components/uber/UberSearchBar';
 import { BottomSheet } from '../../components/uber/BottomSheet';
 import { ProviderCard } from '../../components/uber/ProviderCard';
 import { Button } from '../../components/ui/Button';
