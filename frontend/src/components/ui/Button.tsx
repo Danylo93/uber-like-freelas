@@ -94,7 +94,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getTextStyle = (): TextStyle => {
     const baseTextStyle: TextStyle = {
-      ...theme.typography.labelLarge,
+      ...(theme?.typography?.labelLarge || {}),
       textAlign: 'center',
     };
 
@@ -103,21 +103,24 @@ export const Button: React.FC<ButtonProps> = ({
       case 'secondary':
         return {
           ...baseTextStyle,
-          color: theme.colors.onPrimary,
+          color: theme?.colors?.onPrimary || '#FFFFFF',
         };
       case 'tonal':
         return {
           ...baseTextStyle,
-          color: theme.colors.onPrimaryContainer,
+          color: theme?.colors?.onPrimaryContainer || theme?.colors?.onSurface || '#1C1B1F',
         };
       case 'outlined':
       case 'text':
         return {
           ...baseTextStyle,
-          color: theme.colors.primary,
+          color: theme?.colors?.primary || '#6750A4',
         };
       default:
-        return baseTextStyle;
+        return {
+          ...baseTextStyle,
+          color: theme?.colors?.onSurface || '#1C1B1F',
+        };
     }
   };
 
