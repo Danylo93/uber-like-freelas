@@ -1037,6 +1037,280 @@ class BackendTester:
             self.log_result("Mark Messages as Read (Unauthorized)", False, f"Request error: {str(e)}")
         return False
     
+    def test_update_provider_status_online(self):
+        """Test updating provider status to online"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Update Provider Status (Online)", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            status_data = {"is_online": True}
+            
+            response = self.session.put(f"{self.base_url}/providers/status", json=status_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("is_online") == True and "successfully" in data.get("message", "").lower():
+                    self.log_result("Update Provider Status (Online)", True, "Provider status updated to online successfully")
+                    return True
+                else:
+                    self.log_result("Update Provider Status (Online)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Update Provider Status (Online)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Provider Status (Online)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_provider_status_offline(self):
+        """Test updating provider status to offline"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Update Provider Status (Offline)", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            status_data = {"is_online": False}
+            
+            response = self.session.put(f"{self.base_url}/providers/status", json=status_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("is_online") == False and "successfully" in data.get("message", "").lower():
+                    self.log_result("Update Provider Status (Offline)", True, "Provider status updated to offline successfully")
+                    return True
+                else:
+                    self.log_result("Update Provider Status (Offline)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Update Provider Status (Offline)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Provider Status (Offline)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_provider_status_client_forbidden(self):
+        """Test that clients cannot update provider status"""
+        if not self.auth_token:
+            self.log_result("Update Provider Status (Client Forbidden)", False, "Client auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            status_data = {"is_online": True}
+            
+            response = self.session.put(f"{self.base_url}/providers/status", json=status_data, headers=headers)
+            
+            if response.status_code == 403:
+                data = response.json()
+                if "only providers" in data.get("detail", "").lower():
+                    self.log_result("Update Provider Status (Client Forbidden)", True, "Correctly rejected client attempt to update provider status")
+                    return True
+                else:
+                    self.log_result("Update Provider Status (Client Forbidden)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Update Provider Status (Client Forbidden)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Provider Status (Client Forbidden)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_provider_status_no_auth(self):
+        """Test updating provider status without authentication"""
+        try:
+            status_data = {"is_online": True}
+            response = self.session.put(f"{self.base_url}/providers/status", json=status_data)
+            
+            if response.status_code == 403:
+                self.log_result("Update Provider Status (No Auth)", True, "Correctly rejected unauthenticated request")
+                return True
+            else:
+                self.log_result("Update Provider Status (No Auth)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Provider Status (No Auth)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_update_provider_location(self):
+        """Test updating provider location for nearby search"""
+        if not hasattr(self, 'provider_auth_token'):
+            self.log_result("Update Provider Location", False, "Provider auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.provider_auth_token}"}
+            location_data = {
+                "latitude": -23.5505,
+                "longitude": -46.6333
+            }
+            
+            response = self.session.post(f"{self.base_url}/users/location", json=location_data, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "successfully" in data.get("message", "").lower():
+                    self.log_result("Update Provider Location", True, "Provider location updated successfully")
+                    return True
+                else:
+                    self.log_result("Update Provider Location", False, "Unexpected response message", {"response": data})
+            else:
+                self.log_result("Update Provider Location", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Update Provider Location", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_nearby_providers_with_location(self):
+        """Test getting nearby providers with specific location"""
+        if not self.auth_token:
+            self.log_result("Get Nearby Providers (With Location)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            params = {
+                "latitude": -23.5505,
+                "longitude": -46.6333,
+                "radius": 10.0
+            }
+            
+            response = self.session.get(f"{self.base_url}/providers/nearby", params=params, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "providers" in data and isinstance(data["providers"], list):
+                    self.log_result("Get Nearby Providers (With Location)", True, f"Retrieved {len(data['providers'])} nearby providers")
+                    return True
+                else:
+                    self.log_result("Get Nearby Providers (With Location)", False, "Unexpected response format", {"response": data})
+            else:
+                self.log_result("Get Nearby Providers (With Location)", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Nearby Providers (With Location)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_nearby_providers_no_location(self):
+        """Test getting nearby providers without location parameters"""
+        if not self.auth_token:
+            self.log_result("Get Nearby Providers (No Location)", False, "Auth token not available")
+            return False
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.auth_token}"}
+            response = self.session.get(f"{self.base_url}/providers/nearby", headers=headers)
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "location required" in data.get("detail", "").lower():
+                    self.log_result("Get Nearby Providers (No Location)", True, "Correctly rejected request without location")
+                    return True
+                else:
+                    self.log_result("Get Nearby Providers (No Location)", False, "Wrong error message", {"response": data})
+            else:
+                self.log_result("Get Nearby Providers (No Location)", False, f"Should return 400, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Nearby Providers (No Location)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_get_nearby_providers_no_auth(self):
+        """Test getting nearby providers without authentication"""
+        try:
+            params = {
+                "latitude": -23.5505,
+                "longitude": -46.6333,
+                "radius": 10.0
+            }
+            
+            response = self.session.get(f"{self.base_url}/providers/nearby", params=params)
+            
+            if response.status_code == 403:
+                self.log_result("Get Nearby Providers (No Auth)", True, "Correctly rejected unauthenticated request")
+                return True
+            else:
+                self.log_result("Get Nearby Providers (No Auth)", False, f"Should return 403, got {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("Get Nearby Providers (No Auth)", False, f"Request error: {str(e)}")
+        return False
+    
+    def test_websocket_connection(self):
+        """Test WebSocket connection endpoint"""
+        try:
+            import websocket
+            import threading
+            import time
+            
+            # Test WebSocket connection
+            ws_url = self.base_url.replace("https://", "wss://").replace("/api", "")
+            test_user_id = "test_websocket_user"
+            ws_endpoint = f"{ws_url}/ws/{test_user_id}"
+            
+            connection_successful = False
+            messages_received = []
+            
+            def on_message(ws, message):
+                messages_received.append(message)
+            
+            def on_open(ws):
+                nonlocal connection_successful
+                connection_successful = True
+                # Send a test message
+                test_message = {
+                    "type": "location_update",
+                    "latitude": -23.5505,
+                    "longitude": -46.6333
+                }
+                ws.send(json.dumps(test_message))
+                # Close after a short delay
+                threading.Timer(1.0, ws.close).start()
+            
+            def on_error(ws, error):
+                pass  # Ignore errors for this test
+            
+            # Create WebSocket connection
+            ws = websocket.WebSocketApp(
+                ws_endpoint,
+                on_message=on_message,
+                on_open=on_open,
+                on_error=on_error
+            )
+            
+            # Run WebSocket in a separate thread with timeout
+            ws_thread = threading.Thread(target=ws.run_forever)
+            ws_thread.daemon = True
+            ws_thread.start()
+            
+            # Wait for connection
+            time.sleep(2)
+            
+            if connection_successful:
+                self.log_result("WebSocket Connection", True, "WebSocket connection established successfully")
+                return True
+            else:
+                self.log_result("WebSocket Connection", False, "Failed to establish WebSocket connection")
+                return False
+                
+        except ImportError:
+            self.log_result("WebSocket Connection", False, "websocket-client library not available - skipping WebSocket test")
+            return False
+        except Exception as e:
+            self.log_result("WebSocket Connection", False, f"WebSocket connection error: {str(e)}")
+            return False
+    
+    def test_realtime_service_imports(self):
+        """Test that realtime_service is properly imported and accessible"""
+        try:
+            # Test the health endpoint to verify server is running with realtime_service
+            response = self.session.get(f"{self.base_url}/")
+            
+            if response.status_code == 200:
+                data = response.json()
+                # Check if the API is running (indicates realtime_service imported successfully)
+                if data.get("status") == "running":
+                    self.log_result("RealTime Service Import", True, "RealTime service imported and server running")
+                    return True
+                else:
+                    self.log_result("RealTime Service Import", False, "Server not running properly", {"response": data})
+            else:
+                self.log_result("RealTime Service Import", False, f"HTTP {response.status_code}", {"response": response.text})
+        except Exception as e:
+            self.log_result("RealTime Service Import", False, f"Import test error: {str(e)}")
+        return False
+    
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests...")
