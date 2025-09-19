@@ -87,7 +87,7 @@ async def create_service_request(
             "longitude": request_data.get("longitude", -46.6333),
             "address": request_data.get("address", "São Paulo, SP")
         },
-        status=ServiceStatus.PENDING
+        status=ServiceStatus.REQUESTED
     )
     
     service_data = service_request.dict()
