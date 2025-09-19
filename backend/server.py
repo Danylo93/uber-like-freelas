@@ -17,6 +17,7 @@ from ai_routes import router as ai_router, set_ai_service
 from notification_service import NotificationService
 from realtime_service import RealTimeService
 from fastapi import WebSocket, WebSocketDisconnect
+import service_actions
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
