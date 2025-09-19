@@ -370,7 +370,10 @@
   run_ui: false
 
 ## test_plan:
-  current_focus: []
+  current_focus:
+    - "Chat System Backend"
+    - "Frontend Chat Context Update"
+    - "Rating Components Frontend"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
