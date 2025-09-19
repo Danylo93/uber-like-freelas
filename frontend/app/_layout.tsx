@@ -18,18 +18,20 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
-            <ServicesProvider>
-              <ChatProvider>
-                <MatchingProvider>
-                  <StatusBar style="auto" />
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                    }}
-                  />
-                </MatchingProvider>
-              </ChatProvider>
-            </ServicesProvider>
+            <WebSocketProvider>
+              <ServicesProvider>
+                <ChatProvider>
+                  <MatchingProvider>
+                    <StatusBar style="auto" />
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                      }}
+                    />
+                  </MatchingProvider>
+                </ChatProvider>
+              </ServicesProvider>
+            </WebSocketProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
