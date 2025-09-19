@@ -1,60 +1,125 @@
 <analysis>
-The previous AI engineer successfully initiated and advanced the development of a React Native Expo application, adhering to detailed UX/UI specifications for a service marketplace. The initial focus was on establishing a Material 3 design system, core navigation, and a FastAPI backend with authentication. Key challenges involved resolving  and  compatibility issues, alongside a critical fix for frontend-to-backend communication. The work progressed to integrate Stripe payments, Firebase for real-time chat, and AI features using Emergent LLM. The most recent directive from the user was to refactor the UI/UX to an Uber-like experience, which is currently underway. The project is in an advanced state of feature implementation and UI/UX refinement, with some temporary map functionality workarounds.
+The AI engineer successfully progressed the React Native Expo marketplace app, transforming its UI/UX to an Uber-like experience. Initial work involved establishing a Material 3 design, core navigation, and a FastAPI backend with authentication, Stripe, Firebase chat, and Emergent LLM integration. Key challenges included  compatibility,  import errors, and  context issues, all resolved through systematic debugging, cache clearing, and code adjustments. The engineer implemented comprehensive notification and rating systems, refactored chat to use real backend data, and developed various Uber-like UI components and real-time backend services (WebSocket, provider status, nearby search). The project is in an advanced state, with backend fully tested and frontend components created for core functionalities, currently moving towards integrating these into the main screens.
 </analysis>
-
 <product_requirements>
-The application is a single React Native app for iOS/Android, dynamically adapting its experience based on user roles ( or ) post-login. It must prioritize performance (60fps), accessibility (AA), dark mode, responsive design, and a cohesive Google-like Material 3 design. Core UX principles include clarity, immediate feedback, visible state, predictability, and perceived speed. The primary interface is a map with a contextual . A Material 3 design system, including custom tokens, typography, and reusable components like , various buttons, , , , , , , , and , is required.
-
-Navigation utilizes a  comprising a full-screen map, , , and a  fixed to the footer (Home, Serviços, Atividade, Conta). Features dynamically load based on the user's role. Common flows include Onboarding, Login/SignUp (Email/Password, Google/Apple), Profile, Settings, Notifications, Chat, and History. Client flows encompass service request creation, finding/accepting provider offers, tracking, payment (Stripe), and rating. Provider flows involve online/offline toggling, receiving/accepting/refusing requests, status updates (A caminho / Cheguei / Em serviço), and service finalization. The app requires empty/loading/error states, Google Maps integration, Firebase Realtime Database for chat, and AI features utilizing Emergent LLM. The latest user request is to update Expo to the latest version, remove all existing mocks, and transform the app's overall styling and UX/UI to be more akin to Uber.
+The application is a single React Native app for iOS/Android, dynamically adapting based on  or  roles. It must prioritize performance (60fps), accessibility (AA), dark mode, responsive design, and a Google-like Material 3 design. The primary interface is a map with a contextual . Core features include Onboarding, Login/SignUp (Email/Password, Google/Apple), Profile, Settings, Notifications, Chat, and History. Client flows require service request creation, finding/accepting provider offers, tracking, Stripe payment, and rating. Provider flows involve online/offline toggling, receiving/accepting/refusing requests, status updates (A caminho / Cheguei / Em serviço), and service finalization. The app requires empty/loading/error states, map integration (Google Maps/Directions API), Firebase Realtime Database for chat, AI features, and Socket.IO for real-time communication. The overall styling and UX/UI should be Uber-like, with dynamic animations for maps, searching, and status updates, along with a provider earnings dashboard.
 </product_requirements>
-
 <key_technical_concepts>
--   **React Native & Expo Router**: Cross-platform mobile development with file-based routing.
--   **Material 3 Design System**: Modern, customizable UI/UX guidelines.
--   **Zustand & React Query**: Frontend state and server state management.
--   **FastAPI & MongoDB**: Backend API and NoSQL database.
--   **Stripe**: Payment gateway integration.
--   **Firebase Realtime Database**: Real-time communication for chat.
--   **Emergent LLM Key**: Integration for AI features.
--   ****: Map and location services.
--   **Role-based UI**: Dynamic content based on user roles (client/provider).
+-   **React Native & Expo Router**: Cross-platform mobile development, file-based routing.
+-   **Material 3 Design System**: Modern UI/UX.
+-   **Zustand/React Query**: Frontend state management.
+-   **FastAPI & MongoDB**: Backend API, NoSQL database.
+-   **Stripe**: Payment gateway.
+-   **Firebase Realtime Database**: Real-time chat, push notifications.
+-   **Emergent LLM Key**: AI features.
+-   **WebSockets (Socket.IO)**: Real-time communication for service tracking.
 </key_technical_concepts>
-
 <code_architecture>
-The application has a monorepo structure with  (FastAPI) and  (React Native Expo) directories.
+The application employs a monorepo structure with  (FastAPI) and  (React Native Expo) directories.
 
 
-
--   : This directory houses the Material 3 design tokens, colors, typography scales, and theme configurations (, , , , ). These files are crucial for maintaining a consistent visual identity as per the Google-like design requirement.
--   : Contains a library of reusable UI components like , , , , etc. These abstract common UI patterns, promoting reusability and consistency.
--   : Newly created components like , , , . These are specifically designed to implement the requested Uber-like UI/UX.
--   : This is the Expo Router directory for screen definitions.  files define navigation stacks and tab layouts.  handles authentication-related screens (Login, Register).  defines the main authenticated tabs (Home/Map, Services, Activity, Account).
--   : Manages global state with  (authentication),  (real-time chat), and  (newly added for Uber-like service matching logic).
--   : Centralizes API calls to the FastAPI backend, simplifying data fetching and management.
--   : The main FastAPI application, integrating routes from other backend modules for authentication, payments, and AI services.
--    and : Modules defining specific API routes and logic for Stripe payments and AI interactions, respectively.
--   : Configuration for Babel, essential for transpiling modern JavaScript/TypeScript and handling React Native specific plugins, like those for animations.
--   : Stores environment variables, including the  crucial for connecting the frontend to the backend services.
+-   : The main FastAPI app, now includes , , and WebSocket endpoints from .
+-   : Handles API routes for creating and retrieving service reviews, including a fix for .
+-   : Contains logic for push notifications and API routes to manage tokens and send notifications.
+-   : New module for WebSocket communication, handling connections, and broadcasting service requests/updates.
+-   : Root layout, now includes  for real-time capabilities.
+-   : Main entry point, updated to handle authentication-based redirection using .
+-   : Centralized API service. Corrected URL concatenation (removed double ) and added generic HTTP methods (, , , ).
+-   : Manages user authentication state. Fixed error handling during login and potentially a timing issue for web redirection.
+-   : Refactored to remove mocked data and integrate with real backend chat APIs, also fixed  import path.
+-   , : Updated to be more robust, preventing  undefined errors by ensuring theme context availability.
+-   : New context to manage WebSocket connections and messages for real-time features.
+-   : Updated to integrate with the backend push notification services.
+-   : New hook to manage rating logic in the frontend.
+-   : New hook to consume real-time service updates via WebSockets.
+-   : New hook to manage service tracking states.
+-   : Primary home screen, significantly refactored to an Uber-like interface, incorporating , , and updated  content. Text Para onde vamos? changed to Que serviço você precisa?.
+-   , : Modified to act as placeholders after  was removed.
+-   : New component for a cross-platform map solution.
+-   , : New UI components for the rating system.
+-   : New Uber-like search bar component, with corrected text Que serviço você precisa? and layout adjustments.
+-   : Modified/new component for an interactive bottom sheet.
+-   : New component for tracking service status in real-time.
+-   : New component for providers to toggle their online/offline status.
+-   : New component for displaying search animations for providers.
+-   : New modal component for provider service requests.
+-   : New component for real-time tracking display.
+-   : New component for providers to view their earnings.
+-   : New component for displaying service categories.
+-   : New component for dynamic price estimations.
+-   : New component for instant feedback.
 </code_architecture>
-
 <pending_tasks>
--   Complete the implementation of Firebase push notifications.
--   Develop the comprehensive rating system for services.
--   Address  compatibility issues for web, finding a robust cross-platform mapping solution.
--   Fully remove all remaining mocked data (especially in ) and connect relevant components to real backend data.
--   Refine the Uber-like UI/UX across all screens as requested.
+-   Integrate Google Directions API for real-time route tracing.
+-   Fully integrate and animate service status transitions (using  and ).
+-   Integrate , , ,  into  and other relevant screens.
+-   Implement dynamic map animations (e.g., provider moving smoothly, animated routes).
 </pending_tasks>
-
 <current_work>
-The AI engineer is currently in the process of refactoring the application's UI/UX to match an Uber-like experience, a direct request from the user. This involves creating new dedicated UI components under , specifically , , , and , which are intended to replicate the visual and interaction patterns of Uber's application.
+The AI engineer is currently focusing on completing the Uber-like UI/UX refinement and integrating real-time functionalities. This involves creating various frontend components and backend services. The latest backend work includes a robust WebSocket system, provider online/offline status, and nearby provider search, all thoroughly tested (48/49 tests approved). On the frontend, new components such as , , , and  have just been created. The immediate next step is to integrate these newly created components into the main application screens, specifically starting with , to build out the client and provider flows as per the Uber-like UX design.
 
-A new global state management context, , along with its associated hook , has been introduced. This context is designed to manage the complex logic and states related to service matching between clients and providers within the new Uber-like paradigm.
+continue falando em portugues:
 
-The core navigation structure has been updated in  to integrate the . Crucially, the main  () has been replaced by the newly developed  (located in ), signifying a fundamental shift in the application's primary user interface.
+Valide todo o código já implementado do app mobile e da API.
+Não simplifique nem refatore tudo do zero: aproveite o que já está feito, corrija inconsistências e implemente apenas o que ainda falta.
 
-In parallel, work has begun on refactoring  to eliminate mocked data and connect it to real-time backend data for chat functionality. The engineer is also planning to implement push notifications and a rating system. A temporary placeholder for maps is currently in place due to ongoing  incompatibility issues with web preview, but the focus is on developing the Uber-like UI around this.
+Regras
+
+Garanta que o mesmo app funcione para cliente e prestador, diferenciando apenas pelo role.
+
+Valide e ajuste as funcionalidades já feitas, corrigindo bugs e inconsistências.
+
+Implemente apenas o que ainda falta para completar o fluxo.
+
+Não retire funcionalidades já existentes — apenas melhore, padronize e integre.
+
+Fluxo do Cliente
+
+Login/Registro
+
+Mapa inicial mostrando localização atual
+
+Escolher serviço → confirmar pedido (endereço + descrição)
+
+Buscando prestadores → animação dinâmica estilo Uber
+
+Prestador aceitou → cliente recebe oferta (preço, tempo estimado, rota até o local)
+
+Acompanhamento em tempo real no mapa (Google Directions API + Socket.IO)
+
+Serviço em andamento → animações/status card atualizando
+
+Serviço concluído → tela de feedback/avaliação
+
+Fluxo do Prestador
+
+Login/Registro
+
+Botão Online/Offline no mapa
+
+Receber solicitações com notificação animada (som + modal/bottom sheet)
+
+Aceitar ou recusar solicitação
+
+Se aceitou → rota traçada até cliente (Google Directions API)
+
+Alterar status: chegou → em andamento → concluído
+
+Dashboard de ganhos (diário/semanal) e histórico de serviços
+
+Interações e UX/UI
+
+Mapa central com animações dinâmicas de markers (ex: prestador se movendo suavemente, rota animada).
+
+BottomSheets interativos que mudam conforme o status da corrida/serviço.
+
+Animações de transição suaves (abrir modal, atualizar status, feedback).
+
+Comunicação real time entre cliente e prestador (Socket.IO).
+
+👉 Resumindo: valide todo o código já feito e implemente apenas as partes que faltam, seguindo fielmente o fluxo acima com interações, animações e real time estilo Uber.
+lembrando que é mobile
 </current_work>
-
 <optional_next_step>
-Install necessary dependencies for push notifications and implement the rating system.
+Update  to integrate , , , and .
 </optional_next_step>

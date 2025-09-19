@@ -120,7 +120,7 @@ export default function PaymentScreen() {
       setIsProcessing(true);
       
       // Get current origin URL
-      const originUrl = 'https://joblink-app-2.preview.emergentagent.com'; // You can make this dynamic if needed
+      const originUrl = 'https://gomentor.preview.emergentagent.com'; // You can make this dynamic if needed
 
       const response = await apiService.createPaymentSession({
         package_id: selectedPackage,

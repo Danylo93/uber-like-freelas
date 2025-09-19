@@ -12,7 +12,7 @@ import sys
 import os
 
 # Backend URL from frontend environment
-BACKEND_URL = "https://joblink-app-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://gomentor.preview.emergentagent.com/api"
 
 class BackendTester:
     def __init__(self):
