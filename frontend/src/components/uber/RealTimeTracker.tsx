@@ -186,7 +186,6 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
     container: {
       backgroundColor: colors.surface,
       borderRadius: 20,
-      margin: 16,
       overflow: 'hidden',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
@@ -194,57 +193,8 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
       shadowRadius: 12,
       elevation: 8,
     },
-    progressBar: {
-      height: 4,
-      backgroundColor: colors.surfaceVariant,
-    },
-    progress: {
-      height: '100%',
-      backgroundColor: statusInfo.color,
-    },
     content: {
       padding: 20,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    statusIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 16,
-    },
-    statusTextContainer: {
-      flex: 1,
-    },
-    statusTitle: {
-      ...typography.titleMedium,
-      color: colors.onSurface,
-      marginBottom: 4,
-    },
-    statusSubtitle: {
-      ...typography.bodyMedium,
-      color: colors.onSurfaceVariant,
-    },
-    liveIndicator: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    liveDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: '#4CAF50',
-      marginRight: 6,
-    },
-    liveText: {
-      ...typography.bodySmall,
-      color: '#4CAF50',
-      fontWeight: '600',
     },
     infoSection: {
       marginBottom: 20,
@@ -295,15 +245,21 @@ export const RealTimeTracker: React.FC<RealTimeTrackerProps> = ({
       fontWeight: '500',
     },
     updateIndicator: {
-      position: 'absolute',
-      top: 16,
-      right: 16,
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 16,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
       backgroundColor: colors.surfaceVariant,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
       borderRadius: 12,
+    },
+    liveDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#4CAF50',
+      marginRight: 6,
     },
     updateText: {
       ...typography.bodySmall,
