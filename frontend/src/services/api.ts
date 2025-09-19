@@ -157,6 +157,50 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // AI Features
+  async getAIRecommendations(data: {
+    location: { latitude: number; longitude: number };
+    query?: string;
+  }) {
+    const response = await fetch(`${this.baseUrl}/ai/recommendations`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async enhanceServiceDescription(data: {
+    category: string;
+    user_input: string;
+  }) {
+    const response = await fetch(`${this.baseUrl}/ai/enhance-description`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getChatAssistant(data: {
+    service_request_id: string;
+    message: string;
+  }) {
+    const response = await fetch(`${this.baseUrl}/ai/chat-assistant`, {
+      method: 'POST',
+      headers: await this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getAIUsageStats() {
+    const response = await fetch(`${this.baseUrl}/ai/usage-stats`, {
+      headers: await this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export const apiService = new ApiService();
