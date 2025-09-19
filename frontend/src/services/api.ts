@@ -6,7 +6,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = `${API_URL}/api`;
+    // API_URL already includes /api path in production
+    this.baseUrl = API_URL.includes('/api') ? API_URL : `${API_URL}/api`;
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {
