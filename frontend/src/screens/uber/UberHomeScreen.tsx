@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMatching } from '../../contexts/MatchingContext';
-import { UberMapView } from '../../components/uber/UberMapView';
+import { InteractiveMapView } from '../../components/maps/InteractiveMapView';
 import { SearchBar } from '../../components/uber/SearchBar';
 import { BottomSheet } from '../../components/uber/BottomSheet';
 import { ProviderCard } from '../../components/uber/ProviderCard';
