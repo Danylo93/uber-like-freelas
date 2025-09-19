@@ -8,7 +8,6 @@ import { useAuth } from '../../src/contexts/AuthContext';
 import { Button } from '../../src/components/ui/Button';
 import { Card } from '../../src/components/ui/Card';
 import { Chip } from '../../src/components/ui/Chip';
-import { GoogleMapView } from '../../src/components/maps/GoogleMapView';
 
 export default function HomeScreen() {
   const { theme } = useTheme();
@@ -16,12 +15,6 @@ export default function HomeScreen() {
   const router = useRouter();
   
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [region, setRegion] = useState({
-    latitude: -23.5505,
-    longitude: -46.6333,
-    latitudeDelta: 0.0922,  
-    longitudeDelta: 0.0421,
-  });
 
   useEffect(() => {
     requestLocationPermission();
@@ -41,13 +34,6 @@ export default function HomeScreen() {
 
       const currentLocation = await Location.getCurrentPositionAsync({});
       setLocation(currentLocation);
-      
-      setRegion({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
     } catch (error) {
       console.error('Error getting location:', error);
     }
@@ -62,42 +48,30 @@ export default function HomeScreen() {
     'Marcenaria',
   ];
 
-  // Sample service providers for map
-  const serviceProviders = [
-    {
-      id: '1',
-      coordinate: { latitude: -23.5505, longitude: -46.6333 },
-      title: 'João - Limpeza',
-      description: 'Especialista em limpeza residencial',
-    },
-    {
-      id: '2', 
-      coordinate: { latitude: -23.5515, longitude: -46.6343 },
-      title: 'Maria - Jardinagem',
-      description: 'Cuidado de jardins e plantas',
-    },
-    {
-      id: '3',
-      coordinate: { latitude: -23.5495, longitude: -46.6323 },
-      title: 'Carlos - Elétrica',
-      description: 'Instalações e reparos elétricos',
-    },
-  ];
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    mapContainer: {
+    mapPlaceholder: {
       flex: 1,
+      backgroundColor: theme.colors.surfaceContainer,
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: theme.spacing.md,
+      borderRadius: theme.borderRadius.medium,
+    },
+    mapText: {
+      ...theme.typography.bodyLarge,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
     },
     bottomSheet: {
       backgroundColor: theme.colors.surface,
       borderTopLeftRadius: theme.borderRadius.large,
       borderTopRightRadius: theme.borderRadius.large,
       padding: theme.spacing.md,
-      minHeight: 220,
+      minHeight: 280,
       ...theme.elevation.level2,
     },
     header: {
@@ -132,6 +106,7 @@ export default function HomeScreen() {
     buttonRow: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
     },
     floatingButton: {
       position: 'absolute',
@@ -222,10 +197,25 @@ export default function HomeScreen() {
             Ganhos de hoje: R$ 0,00
           </Text>
           <Button
+            title="AI Assistant"
+            onPress={() => router.push('/ai-recommendations')}
+            variant="tonal"
+            size="small"
+          />
+        </View>
+        
+        <View style={styles.buttonRow}>
+          <Button
+            title="Chat"
+            onPress={() => router.push('/chat')}
+            variant="outlined"
+            style={{ flex: 1 }}
+          />
+          <Button
             title="Pagamento"
             onPress={() => router.push('/payment')}
             variant="tonal"
-            size="small"
+            style={{ flex: 1 }}
           />
         </View>
       </View>
@@ -234,20 +224,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.mapContainer}>
-        <GoogleMapView
-          initialRegion={region}
-          markers={serviceProviders}
-          onRegionChange={setRegion}
-          onMarkerPress={(markerId) => {
-            const provider = serviceProviders.find(p => p.id === markerId);
-            if (provider) {
-              Alert.alert(provider.title, provider.description);
-            }
-          }}
-          showUserLocation={true}
-          followUserLocation={false}
-        />
+      <View style={styles.mapPlaceholder}>
+        <Text style={styles.mapText}>
+          🗺️{'\n\n'}
+          Google Maps integrado{'\n'}
+          (Funcional no mobile)
+          {location && (
+            `\n\nLocalização atual:\nLat: ${location.coords.latitude.toFixed(4)}\nLng: ${location.coords.longitude.toFixed(4)}`
+          )}
+          {'\n\n'}✨ Chat • 🤖 AI • 💳 Pagamentos • 📍 Maps
+        </Text>
       </View>
 
       <View style={styles.floatingButton}>
