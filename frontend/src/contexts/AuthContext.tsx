@@ -77,12 +77,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log('🔐 Starting login process for:', email);
+      
       const response = await apiService.login({ email, password });
+      console.log('✅ Login response received:', response);
+      
+      if (!response.access_token) {
+        throw new Error('No access token received from server');
+      }
       
       await AsyncStorage.setItem(AUTH_TOKEN_KEY, response.access_token);
       await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
+      console.log('✅ Auth data stored successfully');
       
       setUser(response.user);
+      console.log('✅ User state updated, login successful');
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      throw error; // Re-throw so the UI can handle it
     } finally {
       setIsLoading(false);
     }
