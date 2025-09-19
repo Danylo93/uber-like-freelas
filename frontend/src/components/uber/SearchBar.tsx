@@ -11,7 +11,7 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   onPress,
-  placeholder = "Para onde?",
+  placeholder = "Que serviço você precisa?",
   address,
 }) => {
   const { theme } = useTheme();
