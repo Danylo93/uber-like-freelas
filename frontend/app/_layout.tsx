@@ -7,6 +7,7 @@ import { ThemeProvider } from '../src/contexts/ThemeContext';
 import { AuthProvider } from '../src/contexts/AuthContext';
 import { ServicesProvider } from '../src/contexts/ServicesContext';
 import { ChatProvider } from '../src/contexts/ChatContext';
+import { MatchingProvider } from '../src/contexts/MatchingContext';
 
 const queryClient = new QueryClient();
 
@@ -18,12 +19,14 @@ export default function RootLayout() {
           <AuthProvider>
             <ServicesProvider>
               <ChatProvider>
-                <StatusBar style="auto" />
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                />
+                <MatchingProvider>
+                  <StatusBar style="auto" />
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                    }}
+                  />
+                </MatchingProvider>
               </ChatProvider>
             </ServicesProvider>
           </AuthProvider>
