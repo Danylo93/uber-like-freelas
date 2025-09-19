@@ -231,15 +231,21 @@
 
   - task: "Login Screen"
     implemented: true
-    working: "NA"
+    working: true
     file: "src/screens/auth/LoginScreen.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Built responsive login screen with form validation, error handling, and proper keyboard behavior"
+      - working: false
+        agent: "user"
+        comment: "User reported 'não consigo logar' - login functionality not working"
+      - working: true
+        agent: "main"
+        comment: "Fixed critical environment variable issue - changed EXPO_PUBLIC_BACKEND_URL from external URL to localhost:8001 to resolve container networking problem"
 
   - task: "Register Screen"
     implemented: true
