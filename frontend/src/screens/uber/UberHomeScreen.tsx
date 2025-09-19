@@ -80,13 +80,51 @@ export default function UberHomeScreen() {
       return;
     }
 
-    await requestService(selectedCategory, serviceTitle, serviceDescription, serviceAddress);
-    setShowServiceForm(false);
+    try {
+      setShowSearchingAnimation(true);
+      await requestService(selectedCategory, serviceTitle, serviceDescription, serviceAddress);
+      setShowServiceForm(false);
+      
+      // Hide searching animation after some time if no providers found
+      setTimeout(() => {
+        setShowSearchingAnimation(false);
+      }, 10000);
+    } catch (error) {
+      setShowSearchingAnimation(false);
+      Alert.alert('Erro', 'Não foi possível solicitar o serviço. Tente novamente.');
+    }
   };
 
   const handleProviderSelect = async (providerId: string) => {
     await selectProvider(providerId);
   };
+
+  const handleServiceRequestResponse = async (serviceId: string, accept: boolean) => {
+    if (accept) {
+      await acceptServiceRequest(serviceId);
+    } else {
+      await rejectServiceRequest(serviceId);
+    }
+    setPendingServiceRequest(null);
+  };
+
+  // Listen for incoming service requests (providers only)
+  useEffect(() => {
+    if (user?.role === 'provider' && serviceRequests.length > 0 && !pendingServiceRequest) {
+      const latestRequest = serviceRequests[serviceRequests.length - 1];
+      setPendingServiceRequest(latestRequest);
+    }
+  }, [serviceRequests, user?.role]);
+
+  // Hide searching animation when providers are found
+  useEffect(() => {
+    if (currentState === 'providers_found' && showSearchingAnimation) {
+      setShowSearchingAnimation(false);
+    }
+  }, [currentState]);
+
+  // Check if should show earnings dashboard
+  const shouldShowEarningsDashboard = user?.role === 'provider' && showEarningsDashboard;
 
   const getBottomSheetContent = () => {
     switch (currentState) {
