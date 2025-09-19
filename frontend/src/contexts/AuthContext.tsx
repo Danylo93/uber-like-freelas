@@ -76,24 +76,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
+      const response = await apiService.login({ email, password });
       
-      await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
-      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(data.user));
+      await AsyncStorage.setItem(AUTH_TOKEN_KEY, response.access_token);
+      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
       
-      setUser(data.user);
+      setUser(response.user);
     } finally {
       setIsLoading(false);
     }
@@ -102,24 +90,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string, role: UserRole) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name, role }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-
-      const data = await response.json();
+      const response = await apiService.register({ email, password, name, role });
       
-      await AsyncStorage.setItem(AUTH_TOKEN_KEY, data.token);
-      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(data.user));
+      await AsyncStorage.setItem(AUTH_TOKEN_KEY, response.access_token);
+      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
       
-      setUser(data.user);
+      setUser(response.user);
     } finally {
       setIsLoading(false);
     }
