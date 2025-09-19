@@ -9,7 +9,7 @@ import json
 import sys
 
 # Backend URL from request
-BACKEND_URL = "https://providerapp-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://fastride-2.preview.emergentagent.com/api"
 
 class FocusedLoginTester:
     def __init__(self):
