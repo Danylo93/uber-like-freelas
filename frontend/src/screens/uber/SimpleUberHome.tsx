@@ -539,6 +539,21 @@ export default function SimpleUberHome() {
               </TouchableOpacity>
             </View>
           </ScrollView>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: '#FF9800', marginTop: 8 }]}
+            onPress={async () => {
+              try {
+                console.log('🧪 Testing Firebase connection...');
+                const result = await testFirebaseConnection();
+                Alert.alert('Firebase Test', `Conexão bem-sucedida! ${JSON.stringify(result)}`);
+              } catch (error) {
+                console.error('🧪 Firebase test error:', error);
+                Alert.alert('Firebase Test', `Erro: ${error.message}`);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>🧪 Testar Firebase</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
 
