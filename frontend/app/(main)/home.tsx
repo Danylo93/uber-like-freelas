@@ -172,6 +172,21 @@ export default function HomeScreen() {
             style={{ flex: 1 }}
           />
           <Button
+            title="AI Assistant"
+            onPress={() => router.push('/ai-recommendations')}
+            variant="tonal"
+            style={{ flex: 1 }}
+          />
+        </View>
+        
+        <View style={styles.buttonRow}>
+          <Button
+            title="Chat"
+            onPress={() => router.push('/chat')}
+            variant="outlined"
+            style={{ flex: 1 }}
+          />
+          <Button
             title="Pagamento"
             onPress={() => router.push('/payment')}
             variant="outlined"
