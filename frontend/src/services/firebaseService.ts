@@ -18,16 +18,12 @@ const isFirebaseConfigured = firebaseConfig.apiKey &&
                              firebaseConfig.databaseURL && 
                              firebaseConfig.projectId;
 
-// Initialize Firebase only if configured
-let app: any = null;
-let database: any = null;
-let auth: any = null;
-
-if (isFirebaseConfigured) {
-  app = initializeApp(firebaseConfig);
-  database = getDatabase(app);
-  auth = getAuth(app);
-}
+console.log('Firebase configuration check:', {
+  hasApiKey: !!firebaseConfig.apiKey,
+  hasDatabaseURL: !!firebaseConfig.databaseURL,
+  hasProjectId: !!firebaseConfig.projectId,
+  isConfigured: isFirebaseConfigured
+});
 
 export interface RealTimeServiceRequest {
   id: string;
