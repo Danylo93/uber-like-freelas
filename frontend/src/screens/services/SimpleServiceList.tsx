@@ -11,10 +11,7 @@ export default function SimpleServiceList() {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState([]);
-    { id: '1', title: 'Limpeza Residencial', category: '🧹 Limpeza', price: 'R$ 80,00', status: 'Disponível', clientName: 'Maria Silva', location: 'Vila Madalena', description: 'Limpeza completa de apartamento 2 quartos' },
-    { id: '2', title: 'Jardinagem', category: '🌱 Jardinagem', price: 'R$ 120,00', status: 'Em andamento', clientName: 'João Santos', location: 'Pinheiros', description: 'Poda de plantas e manutenção de jardim' },
-    { id: '3', title: 'Pintura de Parede', category: '🎨 Pintura', price: 'R$ 200,00', status: 'Concluído', clientName: 'Ana Costa', location: 'Copacabana', description: 'Pintura de sala e dois quartos' }
-  ]);
+  const [services, setServices] = useState([]);
   const [showNewServiceModal, setShowNewServiceModal] = useState(false);
   const [newServiceData, setNewServiceData] = useState({
     title: '',
@@ -22,6 +19,28 @@ export default function SimpleServiceList() {
     description: '',
     budget: ''
   });
+
+  useEffect(() => {
+    loadServices();
+  }, [user?.role]);
+
+  const loadServices = async () => {
+    if (user?.role === 'provider') {
+      try {
+        const response = await serviceActionsAPI.getNearbyServices();
+        setServices(response.services || []);
+      } catch (error) {
+        console.error('Error loading services:', error);
+        setServices([]);
+      }
+    } else {
+      // For clients, we could load their own service requests
+      // For now, keeping mock data for demonstration
+      setServices([
+        { id: '1', title: 'Limpeza Residencial', category: '🧹 Limpeza', price: 'R$ 80,00', status: 'Disponível', clientName: 'Você', location: 'Sua localização', description: 'Limpeza completa de apartamento 2 quartos' },
+      ]);
+    }
+  };
 
   const theme = themeContext?.theme || {
     colors: { background: '#F6F6F6', surface: '#FFFFFF', primary: '#6750A4', onSurface: '#1C1B1F', onSurfaceVariant: '#49454F' },
