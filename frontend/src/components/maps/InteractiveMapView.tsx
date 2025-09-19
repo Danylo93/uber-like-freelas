@@ -225,7 +225,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
     },
     mapInfo: {
       position: 'absolute',
-      top: 20,
+      top: 120, // Moved down to avoid overlap with search bar
       left: 20,
       right: 20,
       backgroundColor: colors.surface,
@@ -236,6 +236,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
       shadowOpacity: 0.1,
       shadowRadius: 8,
       elevation: 4,
+      zIndex: 500, // Lower than search bar
     },
     infoText: {
       ...typography.bodyMedium,
