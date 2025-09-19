@@ -17,7 +17,9 @@ import { ServiceRequestModal } from '../../components/uber/ServiceRequestModal';
 import { RealTimeTracker } from '../../components/uber/RealTimeTracker';
 import { EarningsDashboard } from '../../components/uber/EarningsDashboard';
 import { ProviderStatusToggle } from '../../components/uber/ProviderStatusToggle';
+import { TurnByTurnNavigation } from '../../components/uber/TurnByTurnNavigation';
 import { useRealTimeService } from '../../hooks/useRealTimeService';
+import { useDirections } from '../../hooks/useDirections';
 
 export default function UberHomeScreen() {
   const { theme } = useTheme();
