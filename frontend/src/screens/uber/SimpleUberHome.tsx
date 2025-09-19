@@ -164,40 +164,58 @@ export default function SimpleUberHome() {
     setShowServiceForm(true);
   };
 
-  const handleRequestService = () => {
+  const handleRequestService = async () => {
     if (!serviceTitle.trim()) {
       Alert.alert('Erro', 'Por favor, adicione um título para o serviço');
       return;
     }
 
     const selectedCat = serviceCategories.find(cat => cat.id === serviceCategory);
-    
-    Alert.alert(
-      'Confirmar Solicitação',
-      `Serviço: ${serviceTitle}\nCategoria: ${selectedCat?.name}\nPreço estimado: R$ ${selectedCat?.price},00\n\nConfirmar solicitação?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Confirmar', 
-          onPress: () => {
-            setShowServiceForm(false);
-            setCurrentState('searching');
-            
-            // Simulate finding provider
-            setTimeout(() => {
-              setSelectedProvider({
-                name: 'João Silva',
-                rating: 4.8,
-                distance: '2.3 km',
-                eta: '15 min',
-                price: selectedCat?.price || 80
-              });
-              setCurrentState('provider_found');
-            }, 3000);
+    const requestData: ServiceRequest = {
+      title: serviceTitle,
+      category: serviceCategory,
+      description: serviceDescription,
+      budget: selectedCat?.price || 80,
+      latitude: userLocation?.latitude,
+      longitude: userLocation?.longitude,
+      address: 'São Paulo, SP' // Could be obtained from reverse geocoding
+    };
+
+    try {
+      setLoading(true);
+      const response = await serviceActionsAPI.createServiceRequest(requestData);
+      
+      Alert.alert(
+        'Solicitação Enviada!',  
+        `${response.message}\n\nID do serviço: ${response.id}\nTempo estimado: ${response.estimated_response_time}`,
+        [
+          { 
+            text: 'OK',
+            onPress: () => {
+              setShowServiceForm(false);
+              setCurrentState('searching');
+              
+              // Simulate finding provider after API response
+              setTimeout(() => {
+                setSelectedProvider({
+                  name: 'João Silva',
+                  rating: 4.8,
+                  distance: '2.3 km',
+                  eta: '15 min',
+                  price: selectedCat?.price || 80
+                });
+                setCurrentState('provider_found');
+              }, 3000);
+            }
           }
-        }
-      ]
-    );
+        ]
+      );
+    } catch (error) {
+      console.error('Error creating service request:', error);
+      Alert.alert('Erro', 'Não foi possível criar a solicitação. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAcceptProvider = () => {
