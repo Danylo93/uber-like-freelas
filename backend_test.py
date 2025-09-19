@@ -1310,6 +1310,175 @@ class BackendTester:
         except Exception as e:
             self.log_result("RealTime Service Import", False, f"Import test error: {str(e)}")
         return False
+
+    def test_specific_login_user(self):
+        """Test specific login scenario for test@login.com user as requested"""
+        print("\n🎯 FOCUSED LOGIN TEST - SPECIFIC USER SCENARIO")
+        print("=" * 60)
+        
+        # Step 1: List all users in database (via MongoDB direct connection)
+        try:
+            from pymongo import MongoClient
+            mongo_url = "mongodb://localhost:27017"
+            client = MongoClient(mongo_url)
+            db = client["test_database"]
+            
+            # Get all users
+            all_users = list(db.users.find({}, {"email": 1, "name": 1, "role": 1}))
+            print(f"📋 Total users in database: {len(all_users)}")
+            for user in all_users:
+                print(f"   - {user.get('email', 'N/A')} | {user.get('name', 'N/A')} | {user.get('role', 'N/A')}")
+            
+            # Step 2: Check if test@login.com exists
+            target_email = "test@login.com"
+            existing_user = db.users.find_one({"email": target_email})
+            
+            if existing_user:
+                print(f"✅ User {target_email} already exists in database")
+                print(f"   Name: {existing_user.get('name', 'N/A')}")
+                print(f"   Role: {existing_user.get('role', 'N/A')}")
+                print(f"   ID: {existing_user.get('id', 'N/A')}")
+            else:
+                print(f"❌ User {target_email} does not exist - creating now...")
+                
+                # Step 3: Create the specific test user
+                user_data = {
+                    "email": target_email,
+                    "name": "Usuario Teste",
+                    "role": "client",
+                    "phone": "+5511999999999",
+                    "password": "TestPassword123!"
+                }
+                
+                response = self.session.post(f"{self.base_url}/auth/register", json=user_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"✅ User {target_email} created successfully")
+                    print(f"   JWT Token: {data.get('access_token', 'N/A')[:50]}...")
+                    print(f"   User ID: {data.get('user', {}).get('id', 'N/A')}")
+                else:
+                    print(f"❌ Failed to create user: HTTP {response.status_code}")
+                    print(f"   Response: {response.text}")
+                    client.close()
+                    return False
+            
+            client.close()
+            
+        except Exception as e:
+            print(f"❌ Database connection error: {str(e)}")
+            return False
+        
+        # Step 4: Test login with exact credentials
+        print(f"\n🔐 Testing login with exact credentials:")
+        print(f"   Email: test@login.com")
+        print(f"   Password: TestPassword123!")
+        
+        try:
+            login_data = {
+                "email": "test@login.com",
+                "password": "TestPassword123!"
+            }
+            
+            response = self.session.post(f"{self.base_url}/auth/login", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "access_token" in data and "user" in data:
+                    jwt_token = data["access_token"]
+                    user = data["user"]
+                    
+                    print(f"✅ LOGIN SUCCESSFUL!")
+                    print(f"   JWT Token: {jwt_token[:50]}...")
+                    print(f"   User Name: {user.get('name', 'N/A')}")
+                    print(f"   User Email: {user.get('email', 'N/A')}")
+                    print(f"   User Role: {user.get('role', 'N/A')}")
+                    print(f"   User ID: {user.get('id', 'N/A')}")
+                    
+                    # Step 5: Verify JWT token works with protected endpoint
+                    headers = {"Authorization": f"Bearer {jwt_token}"}
+                    me_response = self.session.get(f"{self.base_url}/users/me", headers=headers)
+                    
+                    if me_response.status_code == 200:
+                        me_data = me_response.json()
+                        print(f"✅ JWT Token validation successful")
+                        print(f"   Protected endpoint access: GRANTED")
+                        print(f"   Profile data: {me_data.get('name', 'N/A')} ({me_data.get('email', 'N/A')})")
+                        
+                        # Step 6: Test invalid token rejection
+                        invalid_headers = {"Authorization": "Bearer invalid_token_12345"}
+                        invalid_response = self.session.get(f"{self.base_url}/users/me", headers=invalid_headers)
+                        
+                        if invalid_response.status_code == 401:
+                            print(f"✅ Invalid token properly rejected")
+                            
+                            self.log_result("FOCUSED LOGIN TEST (test@login.com)", True, 
+                                          "All login tests passed: user exists/created, login successful, JWT valid, protected access granted")
+                            return True
+                        else:
+                            print(f"❌ Invalid token not properly rejected: HTTP {invalid_response.status_code}")
+                            self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, 
+                                          f"Invalid token not rejected properly: {invalid_response.status_code}")
+                            return False
+                    else:
+                        print(f"❌ JWT Token validation failed: HTTP {me_response.status_code}")
+                        print(f"   Response: {me_response.text}")
+                        self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, 
+                                      f"JWT token validation failed: {me_response.status_code}")
+                        return False
+                else:
+                    print(f"❌ Login response missing token or user data")
+                    print(f"   Response: {data}")
+                    self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, 
+                                  "Login response missing required fields")
+                    return False
+            else:
+                print(f"❌ Login failed: HTTP {response.status_code}")
+                print(f"   Response: {response.text}")
+                self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, 
+                              f"Login failed: HTTP {response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Login test error: {str(e)}")
+            self.log_result("FOCUSED LOGIN TEST (test@login.com)", False, f"Login test error: {str(e)}")
+            return False
+
+    def run_focused_login_test(self):
+        """Run only the focused login test as requested"""
+        print("🎯 FOCUSED LOGIN TEST FOR SPECIFIC USER")
+        print(f"🔗 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        # Run health check first
+        if not self.test_health_check():
+            print("❌ Backend not available - cannot proceed with login test")
+            return
+        
+        # Run the specific login test
+        success = self.test_specific_login_user()
+        
+        # Print summary
+        print("\n" + "=" * 80)
+        print("📊 FOCUSED LOGIN TEST SUMMARY")
+        print("=" * 80)
+        
+        if success:
+            print("✅ RESULT: LOGIN FUNCTIONALITY IS 100% OPERATIONAL")
+            print("✅ User test@login.com can login successfully")
+            print("✅ Password TestPassword123! is working correctly")
+            print("✅ JWT token generation and validation working")
+            print("✅ Protected endpoint access granted")
+            print("\n🎉 CONCLUSION: Backend authentication system is fully functional!")
+            print("\n📧 EXACT CREDENTIALS TO USE FOR LOGIN:")
+            print("   Email: test@login.com")
+            print("   Password: TestPassword123!")
+        else:
+            print("❌ RESULT: LOGIN TEST FAILED")
+            print("❌ There are issues with the authentication system")
+            print("\n🔍 Check the detailed error messages above for troubleshooting")
+        
+        print("=" * 80)
     
     def run_all_tests(self):
         """Run all backend tests"""
