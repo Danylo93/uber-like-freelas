@@ -281,7 +281,10 @@ export default function UberHomeScreen() {
                 <View style={styles.buttonRow}>
                   <Button
                     title="Cancelar"
-                    onPress={() => setShowServiceForm(false)}
+                    onPress={() => {
+                      console.log('🔄 Cancelar clicked - setting showServiceForm to false');
+                      setShowServiceForm(false);
+                    }}
                     variant="outlined"
                     style={styles.button}
                   />
@@ -297,10 +300,18 @@ export default function UberHomeScreen() {
               <View style={styles.quickActions}>
                 <Button
                   title="Solicitar Serviço"
-                  onPress={() => setShowServiceForm(true)}
+                  onPress={() => {
+                    console.log('🔄 Solicitar Serviço clicked - setting showServiceForm to true');
+                    setShowServiceForm(true);
+                  }}
                   fullWidth
                   style={styles.primaryButton}
                 />
+                
+                {/* Debug info - temporary */}
+                <Text style={{ fontSize: 12, color: 'gray', marginTop: 8 }}>
+                  Debug: Form visible = {showServiceForm ? 'true' : 'false'}
+                </Text>
               </View>
             )}
           </View>
